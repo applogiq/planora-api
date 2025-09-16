@@ -141,6 +141,7 @@ The system comes with these default users:
    python -m venv venv
    venv\Scripts\activate
    source venv/bin/activate
+   source venv/bin/activate && uvicorn main:app --reload --port 8000   
    uvicorn app.main:app --reload --port 8000
    ```
 
