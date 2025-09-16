@@ -1,0 +1,1 @@
+# Auth CRUD - authentication uses User CRUD from users feature

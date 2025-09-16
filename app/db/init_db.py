@@ -1,10 +1,11 @@
 from sqlalchemy.orm import Session
 from app.core.security import get_password_hash
-from app.crud import crud_user, crud_role
-from app.schemas.user import UserCreate
-from app.schemas.role import RoleCreate
-from app.models.user import User
-from app.models.role import Role
+from app.features.users.crud import crud_user
+from app.features.roles.crud import crud_role
+from app.features.users.schemas import UserCreate
+from app.features.roles.schemas import RoleCreate
+from app.features.users.models import User
+from app.features.roles.models import Role
 import uuid
 
 def init_db(db: Session) -> None:

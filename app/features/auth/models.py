@@ -1,0 +1,1 @@
+# Auth models - authentication uses User model from users feature
