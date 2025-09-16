@@ -1,276 +1,220 @@
-# Planora API
+# Planora API - Project Management System
 
-A comprehensive project management API built with FastAPI, PostgreSQL, and modern Python best practices.
+A comprehensive project management system built with FastAPI and PostgreSQL.
 
 ## Features
 
-- **Multi-tenant Architecture**: Secure tenant isolation with Row-Level Security (RLS)
-- **Authentication & Authorization**: JWT tokens, API keys, and role-based access control
-- **Project Management**: Projects, tasks, boards, sprints, and custom fields
-- **Real-time Collaboration**: WebSocket support for live updates
-- **Resource Management**: Time tracking, capacity planning, and reporting
-- **Workflow Automation**: Rule-based automation with webhooks
-- **Integrations**: Slack, GitHub, calendar sync, and import/export
-- **RESTful API**: OpenAPI/Swagger documentation with comprehensive validation
+### Core Modules
+1. **User Management** - User CRUD operations, role assignment, profile management
+2. **Roles & Access Control** - Permission-based access control system
+3. **Authentication** - JWT-based authentication with refresh tokens
+4. **Audit Logs** - Complete activity tracking and logging
+5. **Project Management** - Project lifecycle management
+6. **Task Planning** - Kanban board, sprint management, task tracking
 
-## Tech Stack
-
-- **Framework**: FastAPI 0.104+
-- **Database**: PostgreSQL with SQLAlchemy ORM
-- **Authentication**: JWT tokens with bcrypt password hashing
-- **Search**: OpenSearch for full-text search capabilities
-- **Cache**: Redis for caching and real-time features
-- **Background Tasks**: Celery with Redis broker
-- **Testing**: pytest with async support
-- **Documentation**: Auto-generated OpenAPI/Swagger docs
-
-## Quick Start
-
-### Prerequisites
-
-- Python 3.11+
-- PostgreSQL 14+
-- Redis 6+
-- (Optional) OpenSearch 2.0+
-
-### Installation
-
-1. Clone the repository:
-```bash
-git clone <repository-url>
-cd taskq-api
-```
-
-2. Create a virtual environment:
-```bash
-python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
-```
-
-3. Install dependencies:
-```bash
-pip install -r requirements.txt
-```
-
-4. Set up environment variables:
-```bash
-cp .env.example .env
-# Edit .env with your configuration
-```
-
-5. Enable PostgreSQL extensions and initialize database:
-```bash
-python enable_extensions.py
-python init_db.py
-```
-
-6. (Optional) Load sample data for testing:
-```bash
-python sample_data/setup_all_data.py
-```
-
-7. Start the development server:
-```bash
-
-python -m venv venv
-venv\Scripts\activate
-source venv/bin/activate
-uvicorn app.main:app --reload
-# Or use the simplified server:
-python simple_server.py
-```
-
-The API will be available at `http://localhost:8000`
-
-## API Documentation
-
-Once the server is running, you can access:
-
-- **Interactive API Docs (Swagger UI)**: http://localhost:8000/docs
-- **Alternative API Docs (ReDoc)**: http://localhost:8000/redoc
-- **OpenAPI JSON**: http://localhost:8000/api/v1/openapi.json
-
-## Sample Data
-
-The `sample_data/` folder contains scripts to populate the database with realistic test data:
-
-### Quick Setup
-```bash
-# Create comprehensive sample data (users, projects, tasks, etc.)
-python sample_data/setup_all_data.py
-
-# View what sample data exists
-python sample_data/list_sample_data.py
-
-# Reset all data (WARNING: deletes everything!)
-python sample_data/reset_sample_data.py
-```
-
-### Sample Users
-After running the sample data setup, you can login with any of these users (password: `Applogiq@123`):
-- `admin@planora.com` - Admin role
-- `pm@planora.com` - Project Manager role  
-- `developer@planora.com` - Developer role
-- `designer@planora.com` - Designer role
-- `tester@planora.com` - Tester role
-
-### Sample Data Includes
-- **8 Users** with different roles and permissions
-- **5 Projects** with various statuses and workflows
-- **45 Tasks** including epics, stories, and bugs
-- **Time tracking** entries and timesheets
-- **Integration** configurations (Slack, GitHub, etc.)
-- **Automation** rules and webhooks
-- **Reports** and analytics dashboards
-
-See `sample_data/README.md` for detailed information.
-
-## Configuration
-
-The application uses environment variables for configuration. Key settings include:
-
-### Database
-- `DATABASE_URL`: PostgreSQL connection string
-- `DATABASE_TEST_URL`: Test database connection string
-
-### Authentication
-- `SECRET_KEY`: JWT signing secret (required)
-- `ACCESS_TOKEN_EXPIRE_MINUTES`: Token expiration time (default: 30)
-- `REFRESH_TOKEN_EXPIRE_DAYS`: Refresh token expiration (default: 7)
-
-### External Services
-- `REDIS_URL`: Redis connection string
-- `OPENSEARCH_HOST`: OpenSearch host
-- `OPENSEARCH_PORT`: OpenSearch port
-
-### Application
-- `DEBUG`: Enable debug mode (default: false)
-- `ENVIRONMENT`: Environment name (development/staging/production)
-- `ALLOWED_ORIGINS`: CORS allowed origins
+### Additional APIs
+- **Dashboard** - Overview statistics and user workload
+- **Reports** - Project progress, time tracking, productivity reports
+- **Notifications** - System notifications and user alerts
 
 ## API Endpoints
 
 ### Authentication
 - `POST /api/v1/auth/login` - User login
-- `POST /api/v1/auth/register` - User registration
 - `POST /api/v1/auth/refresh` - Refresh access token
 - `GET /api/v1/auth/me` - Get current user
-- `POST /api/v1/auth/change-password` - Change password
-- `POST /api/v1/auth/api-tokens` - Create API token
+- `POST /api/v1/auth/logout` - User logout
+
+### Users
+- `GET /api/v1/users/` - List all users
+- `POST /api/v1/users/` - Create new user
+- `GET /api/v1/users/{user_id}` - Get user by ID
+- `PUT /api/v1/users/{user_id}` - Update user
+- `DELETE /api/v1/users/{user_id}` - Delete user
+- `GET /api/v1/users/active/list` - Get active users
+- `GET /api/v1/users/role/{role_name}` - Get users by role
+
+### Roles
+- `GET /api/v1/roles/` - List all roles
+- `POST /api/v1/roles/` - Create new role
+- `GET /api/v1/roles/{role_id}` - Get role by ID
+- `PUT /api/v1/roles/{role_id}` - Update role
+- `DELETE /api/v1/roles/{role_id}` - Delete role
+- `GET /api/v1/roles/active/list` - Get active roles
+- `GET /api/v1/roles/permissions/list` - Get available permissions
 
 ### Projects
-- `GET /api/v1/projects` - List projects
-- `POST /api/v1/projects` - Create project
-- `GET /api/v1/projects/{id}` - Get project details
-- `PUT /api/v1/projects/{id}` - Update project
-- `DELETE /api/v1/projects/{id}` - Delete project
-- `GET /api/v1/projects/{id}/members` - List project members
-- `POST /api/v1/projects/{id}/members` - Add project member
+- `GET /api/v1/projects/` - List all projects
+- `POST /api/v1/projects/` - Create new project
+- `GET /api/v1/projects/{project_id}` - Get project by ID
+- `PUT /api/v1/projects/{project_id}` - Update project
+- `DELETE /api/v1/projects/{project_id}` - Delete project
+- `GET /api/v1/projects/active/list` - Get active projects
+- `GET /api/v1/projects/status/{status}` - Get projects by status
+- `GET /api/v1/projects/stats/overview` - Get project statistics
 
 ### Tasks
-- `GET /api/v1/tasks` - List tasks with filtering
-- `POST /api/v1/tasks` - Create task
-- `GET /api/v1/tasks/{id}` - Get task details
-- `PUT /api/v1/tasks/{id}` - Update task
-- `DELETE /api/v1/tasks/{id}` - Delete task
-- `GET /api/v1/tasks/{id}/comments` - List task comments
-- `POST /api/v1/tasks/{id}/comments` - Create comment
-- `GET /api/v1/tasks/{id}/history` - Get task history
+- `GET /api/v1/tasks/` - List all tasks
+- `POST /api/v1/tasks/` - Create new task
+- `GET /api/v1/tasks/{task_id}` - Get task by ID
+- `PUT /api/v1/tasks/{task_id}` - Update task
+- `DELETE /api/v1/tasks/{task_id}` - Delete task
+- `GET /api/v1/tasks/board/kanban` - Get Kanban board view
+- `GET /api/v1/tasks/stats/overview` - Get task statistics
 
-## Database Schema
+### Audit Logs
+- `GET /api/v1/audit-logs/` - List audit logs
+- `GET /api/v1/audit-logs/{log_id}` - Get audit log by ID
+- `GET /api/v1/audit-logs/user/{user_id}` - Get user audit logs
+- `GET /api/v1/audit-logs/stats/summary` - Get audit statistics
 
-The application uses a comprehensive database schema with the following key entities:
+### Dashboard
+- `GET /api/v1/dashboard/overview` - Get dashboard overview
+- `GET /api/v1/dashboard/user-workload` - Get user workload
+- `GET /api/v1/dashboard/team-performance` - Get team performance
 
-- **Tenants**: Multi-tenant isolation
-- **Users**: User accounts with profiles
-- **Roles & Permissions**: RBAC system
-- **Projects**: Project management
-- **Tasks**: Task tracking with hierarchy
-- **Comments**: Task discussions
-- **Attachments**: File uploads
-- **Time Tracking**: Time entries and timesheets
-- **Automation**: Workflow rules and webhooks
-- **Integrations**: External service connections
+### Reports
+- `GET /api/v1/reports/project-progress` - Project progress report
+- `GET /api/v1/reports/time-tracking` - Time tracking report
+- `GET /api/v1/reports/productivity` - Productivity report
+- `GET /api/v1/reports/task-completion` - Task completion report
+
+### Notifications
+- `GET /api/v1/notifications/` - Get user notifications
+- `POST /api/v1/notifications/{notification_id}/mark-read` - Mark notification as read
+- `POST /api/v1/notifications/mark-all-read` - Mark all notifications as read
+
+## Permission System
+
+The system uses a role-based permission system with the following permissions:
+- `user:read`, `user:write`, `user:delete` - User management
+- `role:read`, `role:write` - Role management
+- `project:read`, `project:write`, `project:delete` - Project management
+- `task:read`, `task:write`, `task:delete` - Task management
+- `team:read`, `team:write` - Team management
+- `report:read`, `report:write` - Report access
+- `audit:read` - Audit log access
+- `*` - Super admin (all permissions)
+
+## Default Users
+
+The system comes with these default users:
+
+### Super Admin
+- **Email:** superadmin@planora.com
+- **Password:** super123
+- **Permissions:** All permissions (*)
+
+### Admin
+- **Email:** admin@planora.com
+- **Password:** admin123
+- **Permissions:** User, role, project, and settings management
+
+### Project Manager
+- **Email:** pm@planora.com
+- **Password:** pm123
+- **Permissions:** Project and task management, team coordination
+
+## Setup Instructions
+
+### Quick Setup (Recommended)
+
+1. **Install Dependencies**
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+2. **Environment Setup**
+   ```bash
+   cp .env.example .env
+   # Edit .env with your database credentials and secret key
+   ```
+
+3. **Database Setup with Mock Data**
+   ```bash
+   # Create PostgreSQL database named 'planora_db' first
+   python setup_database.py
+   ```
+
+4. **Run the Application**
+   ```bash
+   python -m venv venv
+   venv\Scripts\activate
+   source venv/bin/activate
+   uvicorn app.main:app --reload --port 8000
+   ```
+
+5. **Access API Documentation**
+   - Swagger UI: http://localhost:8000/docs
+   - ReDoc: http://localhost:8000/redoc
+
+### Alternative Setup Options
+
+**Option 1: Basic setup with minimal data**
+```bash
+python create_db.py
+```
+
+**Option 2: Full mock data setup**
+```bash
+python insert_mock_data.py
+```
+
+**Option 3: Basic setup with mock data flag**
+```bash
+python create_db.py --with-mock-data
+```
+
+### Database Requirements
+
+1. **PostgreSQL Installation**
+   - Install PostgreSQL (version 12 or higher)
+   - Create a database named `planora_db`
+   - Update the DATABASE_URL in your .env file
+
+2. **Environment Variables**
+   ```env
+   DATABASE_URL=postgresql://username:password@localhost:5432/planora_db
+   SECRET_KEY=your-super-secret-key-here
+   ALGORITHM=HS256
+   ACCESS_TOKEN_EXPIRE_MINUTES=30
+   REFRESH_TOKEN_EXPIRE_DAYS=7
+   ```
+
+## Project Structure
+
+```
+app/
+├── api/
+│   └── v1/
+│       ├── endpoints/          # API route handlers
+│       └── api.py             # API router configuration
+├── core/
+│   ├── config.py              # Application configuration
+│   ├── security.py            # Authentication utilities
+│   └── deps.py                # Dependency injection
+├── crud/                      # Database operations
+├── db/
+│   ├── database.py            # Database connection
+│   └── init_db.py             # Database initialization
+├── models/                    # SQLAlchemy models
+└── schemas/                   # Pydantic schemas
+```
+
+## Technology Stack
+
+- **Framework:** FastAPI
+- **Database:** PostgreSQL
+- **ORM:** SQLAlchemy
+- **Authentication:** JWT (JSON Web Tokens)
+- **Password Hashing:** bcrypt
+- **API Documentation:** Swagger/OpenAPI
 
 ## Security Features
 
-- **Row-Level Security (RLS)**: Tenant data isolation at database level
-- **JWT Authentication**: Secure token-based authentication
-- **API Key Support**: Alternative authentication for integrations
-- **Password Security**: bcrypt hashing with salt
-- **Rate Limiting**: Configurable rate limits per endpoint
-- **Input Validation**: Comprehensive request validation
-- **CORS Protection**: Configurable cross-origin policies
-- **Security Headers**: Standard security headers included
-
-## Development
-
-### Running Tests
-```bash
-pytest
-```
-
-### Code Quality
-```bash
-# Format code
-black app/
-isort app/
-
-# Type checking
-mypy app/
-
-# Linting
-flake8 app/
-```
-
-### Database Migrations
-```bash
-# Create new migration
-alembic revision --autogenerate -m "Description"
-
-# Run migrations
-alembic upgrade head
-
-# Rollback migration
-alembic downgrade -1
-```
-
-## Deployment
-
-### Docker
-```bash
-# Build image
-docker build -t planora-api .
-
-# Run container
-docker run -p 8000:8000 --env-file .env planora-api
-```
-
-### Production Considerations
-
-1. **Database**: Use managed PostgreSQL with read replicas
-2. **Cache**: Use managed Redis cluster
-3. **File Storage**: Configure S3 or compatible object storage
-4. **Monitoring**: Set up logging, metrics, and alerting
-5. **Security**: Use HTTPS, secure secrets management
-6. **Scaling**: Use load balancer and horizontal scaling
-
-## Contributing
-
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Add tests for new functionality
-5. Ensure all tests pass
-6. Submit a pull request
-
-## License
-
-This project is licensed under the MIT License - see the LICENSE file for details.
-
-## Support
-
-For support and questions:
-- Create an issue in the repository
-- Check the API documentation at `/docs`
-- Review the project scope document for detailed requirements
+- JWT-based authentication with refresh tokens
+- Role-based access control (RBAC)
+- Password hashing with bcrypt
+- Comprehensive audit logging
+- Request/response validation with Pydantic
+- CORS middleware configuration

@@ -1,79 +1,41 @@
-from typing import Optional, List
 from pydantic import BaseModel, EmailStr
+from typing import Optional, List
 from datetime import datetime
-
-
-class UserProfileBase(BaseModel):
-    first_name: Optional[str] = None
-    last_name: Optional[str] = None
-    avatar_url: Optional[str] = None
-    bio: Optional[str] = None
-    timezone: str = "UTC"
-
-
-class UserProfileCreate(UserProfileBase):
-    pass
-
-
-class UserProfileUpdate(UserProfileBase):
-    pass
-
-
-class UserProfile(UserProfileBase):
-    id: str
-    user_id: str
-    
-    class Config:
-        from_attributes = True
-
 
 class UserBase(BaseModel):
     email: EmailStr
+    name: str
+    role_id: str
+    avatar: Optional[str] = None
     is_active: bool = True
-
+    department: Optional[str] = None
+    skills: Optional[List[str]] = None
+    phone: Optional[str] = None
+    timezone: Optional[str] = None
 
 class UserCreate(UserBase):
-    password: Optional[str] = None
-    sso_subject: Optional[str] = None
-    profile: Optional[UserProfileCreate] = None
-
+    password: str
 
 class UserUpdate(BaseModel):
     email: Optional[EmailStr] = None
+    name: Optional[str] = None
+    role_id: Optional[str] = None
+    avatar: Optional[str] = None
     is_active: Optional[bool] = None
-    profile: Optional[UserProfileUpdate] = None
-
+    department: Optional[str] = None
+    skills: Optional[List[str]] = None
+    phone: Optional[str] = None
+    timezone: Optional[str] = None
+    password: Optional[str] = None
 
 class UserInDB(UserBase):
     id: str
-    tenant_id: str
-    password_hash: Optional[str] = None
-    sso_subject: Optional[str] = None
+    last_login: Optional[datetime] = None
     created_at: datetime
-    
+    updated_at: Optional[datetime] = None
+
     class Config:
         from_attributes = True
 
-
-class User(UserBase):
-    id: str
-    tenant_id: str
-    created_at: datetime
-    profile: Optional[UserProfile] = None
-    
-    class Config:
-        from_attributes = True
-
-
-class UserWithRoles(User):
-    roles: List[str] = []
-    permissions: List[str] = []
-
-
-class UserListResponse(BaseModel):
-    users: List[User]
-    total: int
-    page: int
-    per_page: int
-    pages: int
-
+class User(UserInDB):
+    pass
