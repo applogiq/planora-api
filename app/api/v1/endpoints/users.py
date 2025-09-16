@@ -1,7 +1,8 @@
-from typing import Any, List
-from fastapi import APIRouter, Depends, HTTPException, Request
+from typing import Any, List, Optional
+from fastapi import APIRouter, Depends, HTTPException, Request, Query
 from sqlalchemy.orm import Session
-from app.api import deps
+from app.core import deps
+from app.core.pagination import PaginationParams, PaginatedResponse
 from app.crud import crud_user, crud_audit_log
 from app.db.database import get_db
 from app.models.user import User
@@ -10,15 +11,52 @@ from app.schemas.audit_log import AuditLogCreate
 
 router = APIRouter()
 
-@router.get("/", response_model=List[UserSchema])
+@router.get("/", response_model=PaginatedResponse[UserSchema])
 def read_users(
     db: Session = Depends(get_db),
-    skip: int = 0,
-    limit: int = 100,
+    page: int = Query(default=1, ge=1, description="Page number"),
+    per_page: int = Query(default=20, ge=1, le=100, description="Items per page"),
+    sort_by: Optional[str] = Query(default="created_at", description="Field to sort by"),
+    sort_order: str = Query(default="desc", pattern="^(asc|desc)$", description="Sort order"),
+    search: Optional[str] = Query(default=None, description="Search in name and email"),
+    role_name: Optional[str] = Query(default=None, description="Filter by role name"),
+    role_id: Optional[str] = Query(default=None, description="Filter by role ID"),
+    is_active: Optional[bool] = Query(default=None, description="Filter by active status"),
+    department: Optional[str] = Query(default=None, description="Filter by department"),
     current_user: User = Depends(deps.require_permissions(["user:read"]))
 ) -> Any:
-    users = crud_user.get_multi(db, skip=skip, limit=limit)
-    return users
+    """
+    Get users with advanced filtering, pagination, and sorting
+
+    **Supported sort fields:** id, name, email, created_at, updated_at, department, is_active
+
+    **Search:** Searches in user name and email fields. Supports partial matches and split name search.
+
+    **Filters:**
+    - role_name: Filter by role name (case-insensitive)
+    - role_id: Filter by specific role ID
+    - is_active: Filter by active status (true/false)
+    - department: Filter by department (case-insensitive, partial match)
+    """
+    users, total = crud_user.get_users_with_filters(
+        db=db,
+        page=page,
+        per_page=per_page,
+        sort_by=sort_by,
+        sort_order=sort_order,
+        search=search,
+        role_name=role_name,
+        role_id=role_id,
+        is_active=is_active,
+        department=department
+    )
+
+    return PaginatedResponse.create(
+        items=users,
+        total=total,
+        page=page,
+        per_page=per_page
+    )
 
 @router.post("/", response_model=UserSchema)
 def create_user(
@@ -136,23 +174,56 @@ def delete_user(
 
     return user
 
-@router.get("/role/{role_name}", response_model=List[UserSchema])
+@router.get("/role/{role_name}", response_model=PaginatedResponse[UserSchema])
 def read_users_by_role(
     *,
     db: Session = Depends(get_db),
     role_name: str,
+    page: int = Query(default=1, ge=1, description="Page number"),
+    per_page: int = Query(default=20, ge=1, le=100, description="Items per page"),
+    sort_by: Optional[str] = Query(default="created_at", description="Field to sort by"),
+    sort_order: str = Query(default="desc", pattern="^(asc|desc)$", description="Sort order"),
     current_user: User = Depends(deps.require_permissions(["user:read"]))
 ) -> Any:
-    # This would need to be implemented in CRUD to join with roles table
-    # For now, returning all users
-    users = crud_user.get_multi(db)
-    return [user for user in users if user.role and user.role.name == role_name]
+    """Get users by role name with pagination and sorting"""
+    users, total = crud_user.get_users_by_role(
+        db=db,
+        role_name=role_name,
+        page=page,
+        per_page=per_page,
+        sort_by=sort_by,
+        sort_order=sort_order
+    )
 
-@router.get("/active/list", response_model=List[UserSchema])
+    return PaginatedResponse.create(
+        items=users,
+        total=total,
+        page=page,
+        per_page=per_page
+    )
+
+@router.get("/active/list", response_model=PaginatedResponse[UserSchema])
 def read_active_users(
     *,
     db: Session = Depends(get_db),
+    page: int = Query(default=1, ge=1, description="Page number"),
+    per_page: int = Query(default=20, ge=1, le=100, description="Items per page"),
+    sort_by: Optional[str] = Query(default="created_at", description="Field to sort by"),
+    sort_order: str = Query(default="desc", pattern="^(asc|desc)$", description="Sort order"),
     current_user: User = Depends(deps.require_permissions(["user:read"]))
 ) -> Any:
-    users = crud_user.get_multi(db)
-    return [user for user in users if user.is_active]
+    """Get active users with pagination and sorting"""
+    users, total = crud_user.get_active_users(
+        db=db,
+        page=page,
+        per_page=per_page,
+        sort_by=sort_by,
+        sort_order=sort_order
+    )
+
+    return PaginatedResponse.create(
+        items=users,
+        total=total,
+        page=page,
+        per_page=per_page
+    )

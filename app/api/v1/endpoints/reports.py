@@ -1,7 +1,7 @@
 from typing import Any, Optional
 from fastapi import APIRouter, Depends, Query
 from sqlalchemy.orm import Session
-from app.api import deps
+from app.core import deps
 from app.crud import crud_project, crud_task, crud_user, crud_audit_log
 from app.db.database import get_db
 from app.models.user import User

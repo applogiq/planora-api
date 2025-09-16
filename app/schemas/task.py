@@ -1,6 +1,10 @@
-from pydantic import BaseModel
-from typing import Optional, List
+from pydantic import BaseModel, ConfigDict
+from typing import Optional, List, TYPE_CHECKING
 from datetime import datetime
+
+if TYPE_CHECKING:
+    from app.schemas.user import User
+    from app.schemas.project import Project
 
 class TaskBase(BaseModel):
     title: str
@@ -38,8 +42,15 @@ class TaskInDB(TaskBase):
     created_at: datetime
     updated_at: Optional[datetime] = None
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 class Task(TaskInDB):
-    pass
+    assignee: Optional["User"] = None
+    project: Optional["Project"] = None
+
+    model_config = ConfigDict(from_attributes=True)
+
+# Import the related schemas to resolve forward references
+from app.schemas.user import User
+from app.schemas.project import Project
+Task.model_rebuild()

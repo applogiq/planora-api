@@ -1,6 +1,9 @@
-from pydantic import BaseModel, EmailStr
-from typing import Optional, List
+from pydantic import BaseModel, EmailStr, ConfigDict
+from typing import Optional, List, TYPE_CHECKING
 from datetime import datetime
+
+if TYPE_CHECKING:
+    from app.schemas.role import Role
 
 class UserBase(BaseModel):
     email: EmailStr
@@ -34,8 +37,13 @@ class UserInDB(UserBase):
     created_at: datetime
     updated_at: Optional[datetime] = None
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 class User(UserInDB):
-    pass
+    role: Optional["Role"] = None
+
+    model_config = ConfigDict(from_attributes=True)
+
+# Import the Role schema to resolve the forward reference
+from app.schemas.role import Role
+User.model_rebuild()

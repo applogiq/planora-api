@@ -3,13 +3,14 @@ from typing import Any
 from fastapi import APIRouter, Depends, HTTPException, status, Request
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
-from app.api import deps
+from app.core import deps
 from app.core import security
 from app.core.config import settings
 from app.crud import crud_user, crud_audit_log
 from app.db.database import get_db
 from app.schemas.auth import Token, LoginData
 from app.schemas.audit_log import AuditLogCreate
+from app.schemas.user import User as UserSchema
 from app.models.user import User
 
 router = APIRouter()
@@ -104,7 +105,7 @@ def refresh_token(
         "token_type": "bearer",
     }
 
-@router.get("/me", response_model=Any)
+@router.get("/me", response_model=UserSchema)
 def read_users_me(
     current_user: User = Depends(deps.get_current_active_user),
 ) -> Any:

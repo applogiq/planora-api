@@ -1,7 +1,8 @@
 from typing import Any, List, Optional
 from fastapi import APIRouter, Depends, HTTPException, Request, Query
 from sqlalchemy.orm import Session
-from app.api import deps
+from app.core import deps
+from app.core.pagination import PaginatedResponse
 from app.crud import crud_task, crud_audit_log
 from app.db.database import get_db
 from app.models.user import User
@@ -10,28 +11,58 @@ from app.schemas.audit_log import AuditLogCreate
 
 router = APIRouter()
 
-@router.get("/", response_model=List[TaskSchema])
+@router.get("/", response_model=PaginatedResponse[TaskSchema])
 def read_tasks(
     db: Session = Depends(get_db),
-    skip: int = 0,
-    limit: int = 100,
-    status: Optional[str] = Query(None, description="Filter by task status"),
-    assignee_id: Optional[str] = Query(None, description="Filter by assignee"),
-    project_id: Optional[str] = Query(None, description="Filter by project"),
-    sprint: Optional[str] = Query(None, description="Filter by sprint"),
+    page: int = Query(default=1, ge=1, description="Page number"),
+    per_page: int = Query(default=20, ge=1, le=100, description="Items per page"),
+    sort_by: Optional[str] = Query(default="created_at", description="Field to sort by"),
+    sort_order: str = Query(default="desc", pattern="^(asc|desc)$", description="Sort order"),
+    search: Optional[str] = Query(default=None, description="Search in title and description"),
+    status: Optional[str] = Query(default=None, description="Filter by task status"),
+    priority: Optional[str] = Query(default=None, description="Filter by priority"),
+    assignee_id: Optional[str] = Query(default=None, description="Filter by assignee"),
+    project_id: Optional[str] = Query(default=None, description="Filter by project"),
+    sprint: Optional[str] = Query(default=None, description="Filter by sprint"),
+    label: Optional[str] = Query(default=None, description="Filter by label"),
     current_user: User = Depends(deps.require_permissions(["task:read"]))
 ) -> Any:
-    if status:
-        tasks = crud_task.get_by_status(db, status=status)
-    elif assignee_id:
-        tasks = crud_task.get_by_assignee(db, assignee_id=assignee_id)
-    elif project_id:
-        tasks = crud_task.get_by_project(db, project_id=project_id)
-    elif sprint:
-        tasks = crud_task.get_by_sprint(db, sprint=sprint)
-    else:
-        tasks = crud_task.get_multi(db, skip=skip, limit=limit)
-    return tasks
+    """
+    Get tasks with advanced filtering, pagination, and sorting
+
+    **Supported sort fields:** id, title, status, priority, due_date, story_points, created_at, updated_at
+
+    **Search:** Searches in task title and description fields.
+
+    **Filters:**
+    - status: Filter by task status (backlog, todo, in-progress, review, done)
+    - priority: Filter by priority (low, medium, high, critical)
+    - assignee_id: Filter by assignee user ID
+    - project_id: Filter by project ID
+    - sprint: Filter by sprint name
+    - label: Filter by specific label
+    """
+    tasks, total = crud_task.get_tasks_with_filters(
+        db=db,
+        page=page,
+        per_page=per_page,
+        sort_by=sort_by,
+        sort_order=sort_order,
+        search=search,
+        status=status,
+        priority=priority,
+        assignee_id=assignee_id,
+        project_id=project_id,
+        sprint=sprint,
+        label=label
+    )
+
+    return PaginatedResponse.create(
+        items=tasks,
+        total=total,
+        page=page,
+        per_page=per_page
+    )
 
 @router.post("/", response_model=TaskSchema)
 def create_task(

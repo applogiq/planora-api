@@ -1,7 +1,8 @@
 from typing import Any, List, Optional
 from fastapi import APIRouter, Depends, HTTPException, Request, Query
 from sqlalchemy.orm import Session
-from app.api import deps
+from app.core import deps
+from app.core.pagination import PaginatedResponse
 from app.crud import crud_project, crud_audit_log
 from app.db.database import get_db
 from app.models.user import User
@@ -10,22 +11,55 @@ from app.schemas.audit_log import AuditLogCreate
 
 router = APIRouter()
 
-@router.get("/", response_model=List[ProjectSchema])
+@router.get("/", response_model=PaginatedResponse[ProjectSchema])
 def read_projects(
     db: Session = Depends(get_db),
-    skip: int = 0,
-    limit: int = 100,
-    status: Optional[str] = Query(None, description="Filter by project status"),
-    team_lead_id: Optional[str] = Query(None, description="Filter by team lead"),
+    page: int = Query(default=1, ge=1, description="Page number"),
+    per_page: int = Query(default=20, ge=1, le=100, description="Items per page"),
+    sort_by: Optional[str] = Query(default="created_at", description="Field to sort by"),
+    sort_order: str = Query(default="desc", pattern="^(asc|desc)$", description="Sort order"),
+    search: Optional[str] = Query(default=None, description="Search in name, description, customer"),
+    status: Optional[str] = Query(default=None, description="Filter by project status"),
+    priority: Optional[str] = Query(default=None, description="Filter by priority"),
+    team_lead_id: Optional[str] = Query(default=None, description="Filter by team lead"),
+    customer: Optional[str] = Query(default=None, description="Filter by customer"),
+    tag: Optional[str] = Query(default=None, description="Filter by tag"),
     current_user: User = Depends(deps.require_permissions(["project:read"]))
 ) -> Any:
-    if status:
-        projects = crud_project.get_by_status(db, status=status)
-    elif team_lead_id:
-        projects = crud_project.get_by_team_lead(db, team_lead_id=team_lead_id)
-    else:
-        projects = crud_project.get_multi(db, skip=skip, limit=limit)
-    return projects
+    """
+    Get projects with advanced filtering, pagination, and sorting
+
+    **Supported sort fields:** id, name, status, priority, progress, start_date, end_date, budget, created_at
+
+    **Search:** Searches in project name, description, and customer fields.
+
+    **Filters:**
+    - status: Filter by project status (Active, On Hold, Completed, Planning)
+    - priority: Filter by priority (Low, Medium, High, Critical)
+    - team_lead_id: Filter by team lead user ID
+    - customer: Filter by customer name (partial match)
+    - tag: Filter by specific tag
+    """
+    projects, total = crud_project.get_projects_with_filters(
+        db=db,
+        page=page,
+        per_page=per_page,
+        sort_by=sort_by,
+        sort_order=sort_order,
+        search=search,
+        status=status,
+        priority=priority,
+        team_lead_id=team_lead_id,
+        customer=customer,
+        tag=tag
+    )
+
+    return PaginatedResponse.create(
+        items=projects,
+        total=total,
+        page=page,
+        per_page=per_page
+    )
 
 @router.post("/", response_model=ProjectSchema)
 def create_project(

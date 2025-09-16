@@ -1,6 +1,9 @@
-from pydantic import BaseModel
-from typing import Optional, List
+from pydantic import BaseModel, ConfigDict
+from typing import Optional, List, TYPE_CHECKING
 from datetime import datetime
+
+if TYPE_CHECKING:
+    from app.schemas.user import User
 
 class ProjectBase(BaseModel):
     name: str
@@ -44,8 +47,13 @@ class ProjectInDB(ProjectBase):
     created_at: datetime
     updated_at: Optional[datetime] = None
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 class Project(ProjectInDB):
-    pass
+    team_lead: Optional["User"] = None
+
+    model_config = ConfigDict(from_attributes=True)
+
+# Import the User schema to resolve forward reference
+from app.schemas.user import User
+Project.model_rebuild()
