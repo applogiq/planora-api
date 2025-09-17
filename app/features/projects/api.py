@@ -29,6 +29,8 @@ def read_projects(
     team_lead_id: Optional[str] = Query(default=None, description="Filter by team lead"),
     customer: Optional[str] = Query(default=None, description="Filter by customer"),
     tag: Optional[str] = Query(default=None, description="Filter by tag"),
+    methodology: Optional[str] = Query(default=None, description="Filter by methodology"),
+    project_type: Optional[str] = Query(default=None, description="Filter by project type"),
     current_user: User = Depends(deps.require_permissions(["project:read"]))
 ) -> Any:
     """
@@ -44,6 +46,8 @@ def read_projects(
     - team_lead_id: Filter by team lead user ID
     - customer: Filter by customer name (partial match)
     - tag: Filter by specific tag
+    - methodology: Filter by project methodology (Agile, Waterfall, Scrum, Kanban, etc.)
+    - project_type: Filter by project type (Software Development, Research, Marketing, etc.)
     """
     projects, total = crud_project.get_projects_with_filters(
         db=db,
@@ -56,7 +60,9 @@ def read_projects(
         priority=priority,
         team_lead_id=team_lead_id,
         customer=customer,
-        tag=tag
+        tag=tag,
+        methodology=methodology,
+        project_type=project_type
     )
 
     return PaginatedResponse.create(
@@ -233,4 +239,20 @@ def get_project_statuses(
 ) -> Any:
     return {
         "statuses": ["Planning", "Active", "On Hold", "Completed"]
+    }
+
+@router.get("/methodologies/list")
+def get_project_methodologies(
+    current_user: User = Depends(deps.require_permissions(["project:read"]))
+) -> Any:
+    return {
+        "methodologies": ["Agile", "Waterfall", "Scrum", "Kanban", "DevOps", "Lean", "Six Sigma"]
+    }
+
+@router.get("/types/list")
+def get_project_types(
+    current_user: User = Depends(deps.require_permissions(["project:read"]))
+) -> Any:
+    return {
+        "project_types": ["Software Development", "Web Development", "Mobile Development", "Research", "Marketing", "Infrastructure", "Data Analysis", "Design", "Testing", "Maintenance"]
     }

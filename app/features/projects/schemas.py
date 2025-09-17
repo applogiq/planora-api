@@ -21,6 +21,8 @@ class ProjectBase(BaseModel):
     team_members: Optional[List[str]] = None
     tags: Optional[List[str]] = None
     color: Optional[str] = None
+    methodology: Optional[str] = None
+    project_type: Optional[str] = None
 
 class ProjectCreate(ProjectBase):
     pass
@@ -41,6 +43,8 @@ class ProjectUpdate(BaseModel):
     team_members: Optional[List[str]] = None
     tags: Optional[List[str]] = None
     color: Optional[str] = None
+    methodology: Optional[str] = None
+    project_type: Optional[str] = None
 
 class ProjectInDB(ProjectBase):
     id: str

@@ -49,7 +49,9 @@ class CRUDProject(CRUDBase[Project, ProjectCreate, ProjectUpdate]):
         priority: Optional[str] = None,
         team_lead_id: Optional[str] = None,
         customer: Optional[str] = None,
-        tag: Optional[str] = None
+        tag: Optional[str] = None,
+        methodology: Optional[str] = None,
+        project_type: Optional[str] = None
     ) -> tuple[List[Project], int]:
         """
         Get projects with advanced filtering, pagination, and sorting
@@ -88,6 +90,14 @@ class CRUDProject(CRUDBase[Project, ProjectCreate, ProjectUpdate]):
         # Tag filter
         if tag:
             filters.append(Project.tags.any(tag.lower()))
+
+        # Methodology filter
+        if methodology:
+            filters.append(func.lower(Project.methodology) == methodology.lower())
+
+        # Project type filter
+        if project_type:
+            filters.append(func.lower(Project.project_type) == project_type.lower())
 
         # Apply all filters
         if filters:
