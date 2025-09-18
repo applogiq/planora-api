@@ -4,15 +4,15 @@ from sqlalchemy.sql import func
 from app.db.database import Base
 
 class Task(Base):
-    __tablename__ = "tasks"
+    __tablename__ = "tbl_tasks"
 
     id = Column(String, primary_key=True, index=True)
     title = Column(String, nullable=False)
     description = Column(Text)
     status = Column(String, nullable=False)  # backlog, todo, in-progress, review, done
     priority = Column(String, nullable=False)  # low, medium, high, critical
-    assignee_id = Column(String, ForeignKey("users.id"))
-    project_id = Column(String, ForeignKey("projects.id"))
+    assignee_id = Column(String, ForeignKey("tbl_users.id"))
+    project_id = Column(String, ForeignKey("tbl_projects.id"))
     sprint = Column(String)
     labels = Column(ARRAY(String))
     due_date = Column(DateTime(timezone=True))

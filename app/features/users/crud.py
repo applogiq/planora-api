@@ -214,6 +214,37 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
             "role_counts": [{"role_name": role.name, "count": role.count} for role in role_counts]
         }
 
+    def get_users_by_multiple_roles(
+        self,
+        db: Session,
+        role_ids: List[str],
+        *,
+        page: int = 1,
+        per_page: int = 20,
+        sort_by: Optional[str] = None,
+        sort_order: str = "asc",
+        is_active: Optional[bool] = True
+    ) -> tuple[List[User], int]:
+        """Get users by multiple role IDs with pagination"""
+        query = db.query(User).options(joinedload(User.role))
+
+        # Filter by multiple role IDs
+        query = query.filter(User.role_id.in_(role_ids))
+
+        # Filter by active status if specified
+        if is_active is not None:
+            query = query.filter(User.is_active == is_active)
+
+        # Apply pagination and sorting
+        return paginate_query(
+            query=query,
+            page=page,
+            per_page=per_page,
+            sort_by=sort_by,
+            sort_order=sort_order,
+            model_class=User
+        )
+
 crud_user = CRUDUser(User)
 
 # Export for backward compatibility

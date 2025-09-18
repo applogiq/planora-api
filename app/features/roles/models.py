@@ -4,7 +4,7 @@ from sqlalchemy.sql import func
 from app.db.database import Base
 
 class Role(Base):
-    __tablename__ = "roles"
+    __tablename__ = "tbl_roles"
 
     id = Column(String, primary_key=True, index=True)
     name = Column(String, unique=True, nullable=False)

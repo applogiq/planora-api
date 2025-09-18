@@ -4,13 +4,13 @@ from sqlalchemy.sql import func
 from app.db.database import Base
 
 class User(Base):
-    __tablename__ = "users"
+    __tablename__ = "tbl_users"
 
     id = Column(String, primary_key=True, index=True)
     email = Column(String, unique=True, index=True, nullable=False)
     password = Column(String, nullable=False)
     name = Column(String, nullable=False)
-    role_id = Column(String, ForeignKey("roles.id"), nullable=False)
+    role_id = Column(String, ForeignKey("tbl_roles.id"), nullable=False)
     avatar = Column(String)
     is_active = Column(Boolean, default=True)
     last_login = Column(DateTime(timezone=True))

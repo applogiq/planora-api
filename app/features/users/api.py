@@ -259,3 +259,77 @@ def read_active_users(
         page=page,
         per_page=per_page
     )
+
+@router.get("/project-owner/", response_model=PaginatedResponse[UserSchema])
+def read_project_owners(
+    *,
+    db: Session = Depends(get_db),
+    page: int = Query(default=1, ge=1, description="Page number"),
+    per_page: int = Query(default=20, ge=1, le=100, description="Items per page"),
+    sort_by: Optional[str] = Query(default="created_at", description="Field to sort by"),
+    sort_order: str = Query(default="desc", pattern="^(asc|desc)$", description="Sort order"),
+    is_active: Optional[bool] = Query(default=True, description="Filter by active status"),
+    current_user: User = Depends(deps.require_permissions(["user:read"]))
+) -> Any:
+    """
+    Get project owners (users with Project Manager role)
+
+    Project owners are users who can manage and lead projects.
+    Currently includes users with role_project_manager.
+    """
+    # Project owner roles: project manager
+    project_owner_role_ids = ["role_project_manager"]
+
+    users, total = crud_user.get_users_by_multiple_roles(
+        db=db,
+        role_ids=project_owner_role_ids,
+        page=page,
+        per_page=per_page,
+        sort_by=sort_by,
+        sort_order=sort_order,
+        is_active=is_active
+    )
+
+    return PaginatedResponse.create(
+        items=users,
+        total=total,
+        page=page,
+        per_page=per_page
+    )
+
+@router.get("/project-member/", response_model=PaginatedResponse[UserSchema])
+def read_project_members(
+    *,
+    db: Session = Depends(get_db),
+    page: int = Query(default=1, ge=1, description="Page number"),
+    per_page: int = Query(default=20, ge=1, le=100, description="Items per page"),
+    sort_by: Optional[str] = Query(default="created_at", description="Field to sort by"),
+    sort_order: str = Query(default="desc", pattern="^(asc|desc)$", description="Sort order"),
+    is_active: Optional[bool] = Query(default=True, description="Filter by active status"),
+    current_user: User = Depends(deps.require_permissions(["user:read"]))
+) -> Any:
+    """
+    Get project members (users with Developer and Tester roles)
+
+    Project members are users who work on projects as contributors.
+    Includes users with role_developer and role_tester.
+    """
+    # Project member roles: developer and tester
+    project_member_role_ids = ["role_developer", "role_tester"]
+
+    users, total = crud_user.get_users_by_multiple_roles(
+        db=db,
+        role_ids=project_member_role_ids,
+        page=page,
+        per_page=per_page,
+        sort_by=sort_by,
+        sort_order=sort_order,
+        is_active=is_active
+    )
+
+    return PaginatedResponse.create(
+        items=users,
+        total=total,
+        page=page,
+        per_page=per_page
+    )

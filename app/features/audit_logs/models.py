@@ -4,10 +4,10 @@ from sqlalchemy.sql import func
 from app.db.database import Base
 
 class AuditLog(Base):
-    __tablename__ = "audit_logs"
+    __tablename__ = "tbl_audit_logs"
 
     id = Column(String, primary_key=True, index=True)
-    user_id = Column(String, ForeignKey("users.id"))
+    user_id = Column(String, ForeignKey("tbl_users.id"))
     user_name = Column(String)
     action = Column(String, nullable=False)
     resource = Column(String, nullable=False)

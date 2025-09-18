@@ -11,6 +11,7 @@ def get_api_router() -> APIRouter:
     from app.features.notifications.api import router as notifications_router
     from app.features.dashboard.api import router as dashboard_router
     from app.features.reports.api import router as reports_router
+    from app.features.masters.api import router as masters_router
 
     api_router = APIRouter()
 
@@ -24,6 +25,7 @@ def get_api_router() -> APIRouter:
     api_router.include_router(dashboard_router, prefix="/dashboard", tags=["dashboard"])
     api_router.include_router(reports_router, prefix="/reports", tags=["reports"])
     api_router.include_router(notifications_router, prefix="/notifications", tags=["notifications"])
+    api_router.include_router(masters_router, prefix="/masters", tags=["masters"])
 
     return api_router
 

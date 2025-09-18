@@ -4,7 +4,7 @@ from sqlalchemy.sql import func
 from app.db.database import Base
 
 class Project(Base):
-    __tablename__ = "projects"
+    __tablename__ = "tbl_projects"
 
     id = Column(String, primary_key=True, index=True)
     name = Column(String, nullable=False)
@@ -18,7 +18,7 @@ class Project(Base):
     customer = Column(String)
     customer_id = Column(String)
     priority = Column(String)  # Low, Medium, High, Critical
-    team_lead_id = Column(String, ForeignKey("users.id"))
+    team_lead_id = Column(String, ForeignKey("tbl_users.id"))
     team_members = Column(ARRAY(String))
     tags = Column(ARRAY(String))
     color = Column(String)

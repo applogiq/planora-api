@@ -9,6 +9,7 @@ from app.features.roles.models import Role
 from app.features.projects.models import Project
 from app.features.tasks.models import Task
 from app.features.audit_logs.models import AuditLog
+from app.features.masters.models import ProjectMethodology, ProjectType, ProjectStatus, Priority
 from app.db.database import Base
 from app.core.security import get_password_hash
 from datetime import datetime, timedelta
@@ -33,7 +34,15 @@ def create_tables_and_insert_data():
         db.query(Project).delete()
         db.query(User).delete()
         db.query(Role).delete()
+        db.query(Priority).delete()
+        db.query(ProjectStatus).delete()
+        db.query(ProjectType).delete()
+        db.query(ProjectMethodology).delete()
         db.commit()
+
+        # Insert Master Data
+        print("Inserting master data...")
+        insert_master_data(db)
 
         # Insert Roles
         print("Inserting roles...")
@@ -1131,6 +1140,213 @@ def insert_audit_logs(db: Session):
 
     db.commit()
     print(f"[SUCCESS] Inserted {len(audit_logs_data)} audit logs")
+
+def insert_master_data(db: Session):
+    """Insert master data for project-related lookups"""
+
+    # Insert Project Methodologies
+    methodologies_data = [
+        {
+            "id": str(uuid.uuid4()),
+            "name": "Agile",
+            "description": "Iterative and incremental approach to project management",
+            "is_active": True,
+            "sort_order": 1
+        },
+        {
+            "id": str(uuid.uuid4()),
+            "name": "Scrum",
+            "description": "Framework for developing and maintaining complex products",
+            "is_active": True,
+            "sort_order": 2
+        },
+        {
+            "id": str(uuid.uuid4()),
+            "name": "Waterfall",
+            "description": "Linear sequential approach to project management",
+            "is_active": True,
+            "sort_order": 3
+        },
+        {
+            "id": str(uuid.uuid4()),
+            "name": "Kanban",
+            "description": "Visual workflow management method",
+            "is_active": True,
+            "sort_order": 4
+        },
+        {
+            "id": str(uuid.uuid4()),
+            "name": "DevOps",
+            "description": "Combination of development and operations practices",
+            "is_active": True,
+            "sort_order": 5
+        },
+        {
+            "id": str(uuid.uuid4()),
+            "name": "Lean",
+            "description": "Methodology focused on maximizing value and minimizing waste",
+            "is_active": True,
+            "sort_order": 6
+        }
+    ]
+
+    for methodology_data in methodologies_data:
+        db_methodology = ProjectMethodology(**methodology_data)
+        db.add(db_methodology)
+
+    # Insert Project Types
+    types_data = [
+        {
+            "id": str(uuid.uuid4()),
+            "name": "Software Development",
+            "description": "Development of software applications and systems",
+            "is_active": True,
+            "sort_order": 1
+        },
+        {
+            "id": str(uuid.uuid4()),
+            "name": "Mobile Development",
+            "description": "Development of mobile applications",
+            "is_active": True,
+            "sort_order": 2
+        },
+        {
+            "id": str(uuid.uuid4()),
+            "name": "Web Development",
+            "description": "Development of websites and web applications",
+            "is_active": True,
+            "sort_order": 3
+        },
+        {
+            "id": str(uuid.uuid4()),
+            "name": "Data Analytics",
+            "description": "Projects focused on data analysis and insights",
+            "is_active": True,
+            "sort_order": 4
+        },
+        {
+            "id": str(uuid.uuid4()),
+            "name": "AI/ML Development",
+            "description": "Artificial Intelligence and Machine Learning projects",
+            "is_active": True,
+            "sort_order": 5
+        },
+        {
+            "id": str(uuid.uuid4()),
+            "name": "Infrastructure",
+            "description": "IT infrastructure and system administration projects",
+            "is_active": True,
+            "sort_order": 6
+        }
+    ]
+
+    for type_data in types_data:
+        db_type = ProjectType(**type_data)
+        db.add(db_type)
+
+    # Insert Project Statuses
+    statuses_data = [
+        {
+            "id": str(uuid.uuid4()),
+            "name": "Planning",
+            "description": "Project is in planning phase",
+            "color": "#6C757D",
+            "is_active": True,
+            "sort_order": 1
+        },
+        {
+            "id": str(uuid.uuid4()),
+            "name": "Active",
+            "description": "Project is actively being worked on",
+            "color": "#28A745",
+            "is_active": True,
+            "sort_order": 2
+        },
+        {
+            "id": str(uuid.uuid4()),
+            "name": "On Hold",
+            "description": "Project is temporarily paused",
+            "color": "#FFC107",
+            "is_active": True,
+            "sort_order": 3
+        },
+        {
+            "id": str(uuid.uuid4()),
+            "name": "Completed",
+            "description": "Project has been completed successfully",
+            "color": "#007BFF",
+            "is_active": True,
+            "sort_order": 4
+        },
+        {
+            "id": str(uuid.uuid4()),
+            "name": "Cancelled",
+            "description": "Project has been cancelled",
+            "color": "#DC3545",
+            "is_active": True,
+            "sort_order": 5
+        }
+    ]
+
+    for status_data in statuses_data:
+        db_status = ProjectStatus(**status_data)
+        db.add(db_status)
+
+    # Insert Priorities
+    priorities_data = [
+        {
+            "id": str(uuid.uuid4()),
+            "name": "Low",
+            "description": "Low priority tasks or projects",
+            "color": "#6C757D",
+            "level": 1,
+            "is_active": True,
+            "sort_order": 1
+        },
+        {
+            "id": str(uuid.uuid4()),
+            "name": "Medium",
+            "description": "Medium priority tasks or projects",
+            "color": "#FFC107",
+            "level": 2,
+            "is_active": True,
+            "sort_order": 2
+        },
+        {
+            "id": str(uuid.uuid4()),
+            "name": "High",
+            "description": "High priority tasks or projects",
+            "color": "#FD7E14",
+            "level": 3,
+            "is_active": True,
+            "sort_order": 3
+        },
+        {
+            "id": str(uuid.uuid4()),
+            "name": "Critical",
+            "description": "Critical priority tasks or projects",
+            "color": "#DC3545",
+            "level": 4,
+            "is_active": True,
+            "sort_order": 4
+        },
+        {
+            "id": str(uuid.uuid4()),
+            "name": "Urgent",
+            "description": "Urgent priority requiring immediate attention",
+            "color": "#E83E8C",
+            "level": 5,
+            "is_active": True,
+            "sort_order": 5
+        }
+    ]
+
+    for priority_data in priorities_data:
+        db_priority = Priority(**priority_data)
+        db.add(db_priority)
+
+    db.commit()
+    print(f"[SUCCESS] Inserted master data: {len(methodologies_data)} methodologies, {len(types_data)} types, {len(statuses_data)} statuses, {len(priorities_data)} priorities")
 
 if __name__ == "__main__":
     create_tables_and_insert_data()
