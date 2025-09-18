@@ -4,7 +4,11 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from sqlalchemy.orm import Session
 from app.db.database import SessionLocal, engine
-from app.models import user, role, project, task, audit_log
+from app.features.users.models import User
+from app.features.roles.models import Role
+from app.features.projects.models import Project
+from app.features.tasks.models import Task
+from app.features.audit_logs.models import AuditLog
 from app.db.database import Base
 from app.core.security import get_password_hash
 from datetime import datetime, timedelta
@@ -16,7 +20,7 @@ def create_tables_and_insert_data():
     # Create all tables
     print("Creating database tables...")
     Base.metadata.create_all(bind=engine)
-    print("✅ Database tables created successfully!")
+    print("[SUCCESS] Database tables created successfully!")
 
     # Get database session
     db = SessionLocal()
@@ -24,11 +28,11 @@ def create_tables_and_insert_data():
     try:
         # Clear existing data (optional - comment out if you want to keep existing data)
         print("Clearing existing data...")
-        db.query(audit_log.AuditLog).delete()
-        db.query(task.Task).delete()
-        db.query(project.Project).delete()
-        db.query(user.User).delete()
-        db.query(role.Role).delete()
+        db.query(AuditLog).delete()
+        db.query(Task).delete()
+        db.query(Project).delete()
+        db.query(User).delete()
+        db.query(Role).delete()
         db.commit()
 
         # Insert Roles
@@ -51,10 +55,10 @@ def create_tables_and_insert_data():
         print("Inserting audit logs...")
         insert_audit_logs(db)
 
-        print("🎉 All mock data inserted successfully!")
+        print("[SUCCESS] All mock data inserted successfully!")
 
     except Exception as e:
-        print(f"❌ Error: {e}")
+        print(f"[ERROR] Error: {e}")
         db.rollback()
     finally:
         db.close()
@@ -100,11 +104,11 @@ def insert_roles(db: Session):
     ]
 
     for role_data in roles_data:
-        db_role = role.Role(**role_data)
+        db_role = Role(**role_data)
         db.add(db_role)
 
     db.commit()
-    print(f"✅ Inserted {len(roles_data)} roles")
+    print(f"[SUCCESS] Inserted {len(roles_data)} roles")
 
 def insert_users(db: Session):
     """Insert user mock data"""
@@ -462,11 +466,11 @@ def insert_users(db: Session):
     ]
 
     for user_data in users_data:
-        db_user = user.User(**user_data)
+        db_user = User(**user_data)
         db.add(db_user)
 
     db.commit()
-    print(f"✅ Inserted {len(users_data)} users")
+    print(f"[SUCCESS] Inserted {len(users_data)} users")
 
 def insert_projects(db: Session):
     """Insert project mock data"""
@@ -487,7 +491,9 @@ def insert_projects(db: Session):
             "team_lead_id": "c3d4e5f6-7890-1234-cdef-345678901234",
             "team_members": ["e5f6g7h8-9012-3456-ef01-567890123456", "f6g7h8i9-0123-4567-f012-678901234567", "c3d4e5f6-7890-1234-cdef-345678901234"],
             "tags": ["frontend", "design", "react"],
-            "color": "#28A745"
+            "color": "#28A745",
+            "methodology": "Agile",
+            "project_type": "Software Development"
         },
         {
             "id": "bb2cc3dd-ee44-5ff6-6778-789012345678",
@@ -505,7 +511,9 @@ def insert_projects(db: Session):
             "team_lead_id": "b2c3d4e5-6f78-9012-bcde-f23456789012",
             "team_members": ["c3d4e5f6-7890-1234-cdef-345678901234", "e5f6g7h8-9012-3456-ef01-567890123456", "d4e5f6g7-8901-2345-def0-456789012345"],
             "tags": ["mobile", "security", "fintech"],
-            "color": "#17A2B8"
+            "color": "#17A2B8",
+            "methodology": "Scrum",
+            "project_type": "Mobile Development"
         },
         {
             "id": "cc3dd4ee-ff55-6667-7889-890123456789",
@@ -523,7 +531,9 @@ def insert_projects(db: Session):
             "team_lead_id": "f6g7h8i9-0123-4567-f012-678901234567",
             "team_members": ["e5f6g7h8-9012-3456-ef01-567890123456", "c3d4e5f6-7890-1234-cdef-345678901234", "b2c3d4e5-6f78-9012-bcde-f23456789012"],
             "tags": ["e-commerce", "inventory", "payments"],
-            "color": "#FFC107"
+            "color": "#FFC107",
+            "methodology": "Agile",
+            "project_type": "Software Development"
         },
         {
             "id": "PROJ-004",
@@ -541,7 +551,9 @@ def insert_projects(db: Session):
             "team_lead_id": "c3d4e5f6-7890-1234-cdef-345678901234",
             "team_members": ["e5f6g7h8-9012-3456-ef01-567890123456", "d4e5f6g7-8901-2345-def0-456789012345"],
             "tags": ["analytics", "dashboard", "reporting"],
-            "color": "#FD7E14"
+            "color": "#FD7E14",
+            "methodology": "Kanban",
+            "project_type": "Data Analytics"
         },
         {
             "id": "PROJ-005",
@@ -559,7 +571,9 @@ def insert_projects(db: Session):
             "team_lead_id": "b2c3d4e5-6f78-9012-bcde-f23456789012",
             "team_members": ["d4e5f6g7-8901-2345-def0-456789012345", "c3d4e5f6-7890-1234-cdef-345678901234", "f6g7h8i9-0123-4567-f012-678901234567"],
             "tags": ["crm", "sales", "customer-management"],
-            "color": "#28A745"
+            "color": "#28A745",
+            "methodology": "Waterfall",
+            "project_type": "Software Development"
         },
         {
             "id": "aa1bb2cc-3dd4-5ee6-ff78-90ab12cd34ef",
@@ -577,7 +591,9 @@ def insert_projects(db: Session):
             "team_lead_id": "g7h8i9j0-1234-5678-0123-789012345678",
             "team_members": ["h8i9j0k1-2345-6789-1234-890123456789", "i9j0k1l2-3456-789a-2345-90123456789a"],
             "tags": ["ai", "chatbot", "customer-support"],
-            "color": "#6F42C1"
+            "color": "#6F42C1",
+            "methodology": "Agile",
+            "project_type": "AI/ML Development"
         },
         {
             "id": "bb2cc3dd-4ee5-6ff7-8901-ab23cd45ef67",
@@ -595,7 +611,9 @@ def insert_projects(db: Session):
             "team_lead_id": "j0k1l2m3-4567-89ab-3456-0123456789ab",
             "team_members": ["l2m3n4o5-6789-abcd-5678-23456789abcd", "m3n4o5p6-789a-bcde-6789-3456789abcde"],
             "tags": ["cloud", "migration", "infrastructure"],
-            "color": "#E83E8C"
+            "color": "#E83E8C",
+            "methodology": "DevOps",
+            "project_type": "Infrastructure"
         },
         {
             "id": "cc3dd4ee-5ff6-7890-1ab2-cd34ef56789a",
@@ -613,7 +631,9 @@ def insert_projects(db: Session):
             "team_lead_id": "k1l2m3n4-5678-9abc-4567-123456789abc",
             "team_members": ["n4o5p6q7-89ab-cdef-789a-456789abcdef", "o5p6q7r8-9abc-def0-89ab-56789abcdef0"],
             "tags": ["social-media", "analytics", "dashboard"],
-            "color": "#20C997"
+            "color": "#20C997",
+            "methodology": "Agile",
+            "project_type": "Marketing Technology"
         },
         {
             "id": "dd4ee5ff-6789-01ab-2cd3-ef4567890abc",
@@ -631,7 +651,9 @@ def insert_projects(db: Session):
             "team_lead_id": "l2m3n4o5-6789-abcd-5678-23456789abcd",
             "team_members": ["p6q7r8s9-abcd-ef01-9abc-6789abcdef01", "q7r8s9t0-bcde-f012-abcd-789abcdef012"],
             "tags": ["iot", "monitoring", "devices"],
-            "color": "#FD7E14"
+            "color": "#FD7E14",
+            "methodology": "Scrum",
+            "project_type": "IoT Development"
         },
         {
             "id": "ee5ff678-9012-ab34-cd56-ef789012345a",
@@ -649,7 +671,9 @@ def insert_projects(db: Session):
             "team_lead_id": "m3n4o5p6-789a-bcde-6789-3456789abcde",
             "team_members": ["r8s9t0u1-cdef-0123-bcde-89abcdef0123", "s9t0u1v2-def0-1234-cdef-9abcdef01234"],
             "tags": ["blockchain", "cryptocurrency", "security"],
-            "color": "#6610F2"
+            "color": "#6610F2",
+            "methodology": "Agile",
+            "project_type": "Blockchain Development"
         },
         {
             "id": "ff67890a-bc12-def3-4567-890123456789",
@@ -667,7 +691,9 @@ def insert_projects(db: Session):
             "team_lead_id": "n4o5p6q7-89ab-cdef-789a-456789abcdef",
             "team_members": ["t0u1v2w3-ef01-2345-def0-abcdef012345", "u1v2w3x4-f012-3456-ef01-bcdef0123456"],
             "tags": ["streaming", "video", "media"],
-            "color": "#DC3545"
+            "color": "#DC3545",
+            "methodology": "Agile",
+            "project_type": "Media Technology"
         },
         {
             "id": "0123456a-bcde-f789-0123-456789abcdef",
@@ -685,7 +711,9 @@ def insert_projects(db: Session):
             "team_lead_id": "o5p6q7r8-9abc-def0-89ab-56789abcdef0",
             "team_members": ["v2w3x4y5-0123-4567-f012-cdef01234567", "w3x4y5z6-1234-5678-0123-def012345678"],
             "tags": ["health", "mobile", "monitoring"],
-            "color": "#198754"
+            "color": "#198754",
+            "methodology": "Lean",
+            "project_type": "Health Technology"
         },
         {
             "id": "123456ab-cdef-0789-1234-56789abcdef0",
@@ -703,7 +731,9 @@ def insert_projects(db: Session):
             "team_lead_id": "p6q7r8s9-abcd-ef01-9abc-6789abcdef01",
             "team_members": ["x4y5z6a7-2345-6789-1234-ef0123456789", "f6g7h8i9-0123-4567-f012-678901234567"],
             "tags": ["documents", "collaboration", "enterprise"],
-            "color": "#0DCAF0"
+            "color": "#0DCAF0",
+            "methodology": "Waterfall",
+            "project_type": "Enterprise Software"
         },
         {
             "id": "23456abc-def0-1789-2345-6789abcdef01",
@@ -721,7 +751,9 @@ def insert_projects(db: Session):
             "team_lead_id": "q7r8s9t0-bcde-f012-abcd-789abcdef012",
             "team_members": ["h8i9j0k1-2345-6789-1234-890123456789", "i9j0k1l2-3456-789a-2345-90123456789a"],
             "tags": ["education", "learning", "courses"],
-            "color": "#6F42C1"
+            "color": "#6F42C1",
+            "methodology": "Agile",
+            "project_type": "Education Technology"
         },
         {
             "id": "3456abcd-ef01-2789-3456-789abcdef012",
@@ -739,7 +771,9 @@ def insert_projects(db: Session):
             "team_lead_id": "r8s9t0u1-cdef-0123-bcde-89abcdef0123",
             "team_members": ["j0k1l2m3-4567-89ab-3456-0123456789ab", "k1l2m3n4-5678-9abc-4567-123456789abc"],
             "tags": ["smart-home", "automation", "iot"],
-            "color": "#FFC107"
+            "color": "#FFC107",
+            "methodology": "Scrum",
+            "project_type": "IoT Development"
         },
         {
             "id": "456abcde-f012-3789-4567-89abcdef0123",
@@ -757,7 +791,9 @@ def insert_projects(db: Session):
             "team_lead_id": "s9t0u1v2-def0-1234-cdef-9abcdef01234",
             "team_members": ["l2m3n4o5-6789-abcd-5678-23456789abcd", "m3n4o5p6-789a-bcde-6789-3456789abcde"],
             "tags": ["food-delivery", "marketplace", "mobile"],
-            "color": "#28A745"
+            "color": "#28A745",
+            "methodology": "Agile",
+            "project_type": "Mobile Development"
         },
         {
             "id": "56abcdef-0123-4789-5678-9abcdef01234",
@@ -775,7 +811,9 @@ def insert_projects(db: Session):
             "team_lead_id": "t0u1v2w3-ef01-2345-def0-abcdef012345",
             "team_members": ["n4o5p6q7-89ab-cdef-789a-456789abcdef", "o5p6q7r8-9abc-def0-89ab-56789abcdef0"],
             "tags": ["vr", "training", "simulation"],
-            "color": "#6610F2"
+            "color": "#6610F2",
+            "methodology": "Agile",
+            "project_type": "VR/AR Development"
         },
         {
             "id": "6abcdef0-1234-5789-6789-abcdef012345",
@@ -793,7 +831,9 @@ def insert_projects(db: Session):
             "team_lead_id": "u1v2w3x4-f012-3456-ef01-bcdef0123456",
             "team_members": ["p6q7r8s9-abcd-ef01-9abc-6789abcdef01", "q7r8s9t0-bcde-f012-abcd-789abcdef012"],
             "tags": ["real-estate", "property", "listings"],
-            "color": "#20C997"
+            "color": "#20C997",
+            "methodology": "Kanban",
+            "project_type": "Web Development"
         },
         {
             "id": "abcdef01-2345-6789-789a-bcdef0123456",
@@ -811,7 +851,9 @@ def insert_projects(db: Session):
             "team_lead_id": "v2w3x4y5-0123-4567-f012-cdef01234567",
             "team_members": ["r8s9t0u1-cdef-0123-bcde-89abcdef0123", "s9t0u1v2-def0-1234-cdef-9abcdef01234"],
             "tags": ["fitness", "api", "analytics"],
-            "color": "#FD7E14"
+            "color": "#FD7E14",
+            "methodology": "Agile",
+            "project_type": "API Development"
         },
         {
             "id": "bcdef012-3456-789a-89ab-cdef01234567",
@@ -829,16 +871,18 @@ def insert_projects(db: Session):
             "team_lead_id": "w3x4y5z6-1234-5678-0123-def012345678",
             "team_members": ["t0u1v2w3-ef01-2345-def0-abcdef012345", "u1v2w3x4-f012-3456-ef01-bcdef0123456"],
             "tags": ["inventory", "warehouse", "automation"],
-            "color": "#6C757D"
+            "color": "#6C757D",
+            "methodology": "Lean",
+            "project_type": "Operations Technology"
         }
     ]
 
     for project_data in projects_data:
-        db_project = project.Project(**project_data)
+        db_project = Project(**project_data)
         db.add(db_project)
 
     db.commit()
-    print(f"✅ Inserted {len(projects_data)} projects")
+    print(f"[SUCCESS] Inserted {len(projects_data)} projects")
 
 def insert_tasks(db: Session):
     """Insert task mock data"""
@@ -986,11 +1030,11 @@ def insert_tasks(db: Session):
     ]
 
     for task_data in tasks_data:
-        db_task = task.Task(**task_data)
+        db_task = Task(**task_data)
         db.add(db_task)
 
     db.commit()
-    print(f"✅ Inserted {len(tasks_data)} tasks")
+    print(f"[SUCCESS] Inserted {len(tasks_data)} tasks")
 
 def insert_audit_logs(db: Session):
     """Insert audit log mock data"""
@@ -1082,11 +1126,11 @@ def insert_audit_logs(db: Session):
     ]
 
     for log_data in audit_logs_data:
-        db_log = audit_log.AuditLog(**log_data)
+        db_log = AuditLog(**log_data)
         db.add(db_log)
 
     db.commit()
-    print(f"✅ Inserted {len(audit_logs_data)} audit logs")
+    print(f"[SUCCESS] Inserted {len(audit_logs_data)} audit logs")
 
 if __name__ == "__main__":
     create_tables_and_insert_data()
