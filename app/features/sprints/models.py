@@ -27,4 +27,4 @@ class Sprint(Base):
     # Relationships
     project = relationship("Project", back_populates="sprints")
     scrum_master = relationship("User", back_populates="managed_sprints")
-    tasks = relationship("Task", back_populates="sprint_obj", foreign_keys="Task.sprint_id")
+    stories = relationship("Story", back_populates="sprint_obj", foreign_keys="Story.sprint_id")

@@ -9,7 +9,7 @@ from app.core.config import settings
 from app.features.users.crud import crud_user
 from app.features.roles.crud import crud_role
 from app.features.projects.crud import crud_project
-from app.features.tasks.crud import crud_task
+from app.features.stories.crud import crud_story
 from app.features.audit_logs.crud import crud_audit_log
 # from app.crud import crud_user, crud_audit_log
 from app.db.database import get_db

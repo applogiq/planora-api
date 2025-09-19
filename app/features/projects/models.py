@@ -29,7 +29,7 @@ class Project(Base):
 
     # Relationships
     team_lead = relationship("User", back_populates="managed_projects")
-    tasks = relationship("Task", back_populates="project")
+    stories = relationship("Story", back_populates="project")
     sprints = relationship("Sprint", back_populates="project")
     epics = relationship("Epic", back_populates="project")
     backlog_items = relationship("Backlog", back_populates="project")

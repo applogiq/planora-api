@@ -15,7 +15,7 @@ from app.db.database import Base
 from app.core.config import settings
 from app.features.projects.models import Project
 from app.features.users.models import User
-from app.features.tasks.models import Task
+from app.features.stories.models import Story
 from app.features.roles.models import Role
 from app.features.audit_logs.models import AuditLog
 from app.features.masters.models import ProjectMethodology, ProjectType, ProjectStatus, Priority

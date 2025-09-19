@@ -6,7 +6,7 @@ from app.shared.crud import CRUDBase
 from app.features.epics.models import Epic
 from app.features.projects.models import Project
 from app.features.users.models import User
-from app.features.tasks.models import Task
+from app.features.stories.models import Story
 from app.features.epics.schemas import EpicCreate, EpicUpdate, EpicStats
 import uuid
 
@@ -136,24 +136,24 @@ class CRUDEpic(CRUDBase[Epic, EpicCreate, EpicUpdate]):
         )
 
     def update_epic_metrics(self, db: Session, *, epic_id: str) -> Optional[Epic]:
-        """Update epic metrics based on associated tasks"""
+        """Update epic metrics based on associated stories"""
         epic = self.get(db, id=epic_id)
         if not epic:
             return None
 
-        # Get tasks for this epic
-        tasks = db.query(Task).filter(Task.epic_id == epic_id).all()
+        # Get stories for this epic
+        stories = db.query(Story).filter(Story.epic_id == epic_id).all()
 
         # Calculate metrics
-        total_tasks = len(tasks)
-        completed_tasks = len([t for t in tasks if t.status == 'done'])
-        total_story_points = sum([t.story_points or 0 for t in tasks])
-        completed_story_points = sum([t.story_points or 0 for t in tasks if t.status == 'done'])
+        total_stories = len(stories)
+        completed_stories = len([t for t in stories if t.status == 'done'])
+        total_story_points = sum([t.story_points or 0 for t in stories])
+        completed_story_points = sum([t.story_points or 0 for t in stories if t.status == 'done'])
 
         # Update epic
         update_data = {
-            "total_tasks": total_tasks,
-            "completed_tasks": completed_tasks,
+            "total_stories": total_stories,
+            "completed_stories": completed_stories,
             "total_story_points": total_story_points,
             "completed_story_points": completed_story_points
         }

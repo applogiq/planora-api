@@ -5,7 +5,7 @@ def get_features_router() -> APIRouter:
     from app.features.users.api import router as users_router
     from app.features.roles.api import router as roles_router
     from app.features.projects.api import router as projects_router
-    from app.features.tasks.api import router as tasks_router
+    from app.features.stories.api import router as stories_router
     from app.features.auth.api import router as auth_router
     from app.features.audit_logs.api import router as audit_logs_router
     from app.features.notifications.api import router as notifications_router
@@ -19,7 +19,7 @@ def get_features_router() -> APIRouter:
     features_router.include_router(users_router, prefix="/users", tags=["users"])
     features_router.include_router(roles_router, prefix="/roles", tags=["roles"])
     features_router.include_router(projects_router, prefix="/projects", tags=["projects"])
-    features_router.include_router(tasks_router, prefix="/tasks", tags=["tasks"])
+    features_router.include_router(stories_router, prefix="/stories", tags=["stories"])
     features_router.include_router(audit_logs_router, prefix="/audit-logs", tags=["audit-logs"])
     features_router.include_router(dashboard_router, prefix="/dashboard", tags=["dashboard"])
     features_router.include_router(reports_router, prefix="/reports", tags=["reports"])

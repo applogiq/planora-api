@@ -50,7 +50,7 @@ def create_all_project_tables_and_insert_data():
             print("\n🧹 Clearing existing project data...")
 
             # Import models for cleanup
-            from app.features.tasks.models import Task
+            from app.features.stories.models import Story
             from app.features.backlog.models import Backlog
             from app.features.sprints.models import Sprint
             from app.features.epics.models import Epic
@@ -464,7 +464,7 @@ def insert_backlog(db: Session):
 
 def insert_tasks(db: Session):
     """Insert task mock data"""
-    from app.features.tasks.models import Task
+    from app.features.stories.models import Story
 
     tasks_data = [
         {
@@ -515,7 +515,7 @@ def insert_tasks(db: Session):
     ]
 
     for task_data in tasks_data:
-        db_task = Task(**task_data)
+        db_task = Story(**task_data)
         db.add(db_task)
 
     db.commit()

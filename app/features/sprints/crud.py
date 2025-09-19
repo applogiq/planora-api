@@ -6,7 +6,7 @@ from app.shared.crud import CRUDBase
 from app.features.sprints.models import Sprint
 from app.features.projects.models import Project
 from app.features.users.models import User
-from app.features.tasks.models import Task
+from app.features.stories.models import Story
 from app.features.sprints.schemas import SprintCreate, SprintUpdate, SprintStats
 import uuid
 
@@ -130,7 +130,7 @@ class CRUDSprint(CRUDBase[Sprint, SprintCreate, SprintUpdate]):
             return None
 
         # Get tasks for this sprint
-        tasks = db.query(Task).filter(Task.sprint_id == sprint_id).all()
+        tasks = db.query(Story).filter(Story.sprint_id == sprint_id).all()
 
         # Calculate metrics
         total_tasks = len(tasks)

@@ -5,7 +5,7 @@ def get_api_router() -> APIRouter:
     from app.features.users.api import router as users_router
     from app.features.roles.api import router as roles_router
     from app.features.projects.api import router as projects_router
-    from app.features.tasks.api import router as tasks_router
+    from app.features.stories.api import router as stories_router
     from app.features.sprints.api import router as sprints_router
     from app.features.epics.api import router as epics_router
     from app.features.backlog.api import router as backlog_router
@@ -19,19 +19,19 @@ def get_api_router() -> APIRouter:
     api_router = APIRouter()
 
     # Include all feature routers
-    api_router.include_router(auth_router, prefix="/auth", tags=["auth"])
-    api_router.include_router(users_router, prefix="/users", tags=["users"])
-    api_router.include_router(roles_router, prefix="/roles", tags=["roles"])
-    api_router.include_router(projects_router, prefix="/projects", tags=["projects"])
-    api_router.include_router(tasks_router, prefix="/tasks", tags=["tasks"])
-    api_router.include_router(sprints_router, prefix="/sprints", tags=["sprints"])
-    api_router.include_router(epics_router, prefix="/epics", tags=["epics"])
-    api_router.include_router(backlog_router, prefix="/backlog", tags=["backlog"])
-    api_router.include_router(audit_logs_router, prefix="/audit-logs", tags=["audit-logs"])
-    api_router.include_router(dashboard_router, prefix="/dashboard", tags=["dashboard"])
-    api_router.include_router(reports_router, prefix="/reports", tags=["reports"])
-    api_router.include_router(notifications_router, prefix="/notifications", tags=["notifications"])
-    api_router.include_router(masters_router, prefix="/masters", tags=["masters"])
+    api_router.include_router(auth_router, prefix="/auth", tags=["Auth"])
+    api_router.include_router(users_router, prefix="/users", tags=["Users"])
+    api_router.include_router(roles_router, prefix="/roles", tags=["Roles"])
+    api_router.include_router(projects_router, prefix="/projects", tags=["Projects"])
+    api_router.include_router(stories_router, prefix="/stories", tags=["Stories"])
+    api_router.include_router(sprints_router, prefix="/sprints", tags=["Sprints"])
+    api_router.include_router(epics_router, prefix="/epics", tags=["Epics"])
+    api_router.include_router(backlog_router, prefix="/backlog", tags=["Backlog"])
+    api_router.include_router(audit_logs_router, prefix="/audit-logs", tags=["Audit-logs"])
+    api_router.include_router(dashboard_router, prefix="/dashboard", tags=["Dashboard"])
+    api_router.include_router(reports_router, prefix="/reports", tags=["Reports"])
+    api_router.include_router(notifications_router, prefix="/notifications", tags=["Notifications"])
+    api_router.include_router(masters_router, prefix="/masters", tags=["Masters"])
 
     return api_router
 

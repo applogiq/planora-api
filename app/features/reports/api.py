@@ -5,9 +5,9 @@ from app.core import deps
 from app.features.users.crud import crud_user
 from app.features.roles.crud import crud_role
 from app.features.projects.crud import crud_project
-from app.features.tasks.crud import crud_task
+from app.features.stories.crud import crud_story
 from app.features.audit_logs.crud import crud_audit_log
-# from app.crud import crud_project, crud_task, crud_user, crud_audit_log
+# from app.crud import crud_project, crud_story, crud_user, crud_audit_log
 from app.db.database import get_db
 from app.features.users.models import User
 from datetime import datetime, timedelta
@@ -29,7 +29,7 @@ def get_project_progress_report(
     report = []
 
     for project in projects:
-        project_tasks = crud_task.get_by_project(db, project_id=project.id)
+        project_tasks = crud_story.get_by_project(db, project_id=project.id)
 
         project_report = {
             "project_id": project.id,
@@ -69,11 +69,11 @@ def get_time_tracking_report(
 ) -> Any:
     # Get tasks based on filters
     if user_id:
-        tasks = crud_task.get_by_assignee(db, assignee_id=user_id)
+        tasks = crud_story.get_by_assignee(db, assignee_id=user_id)
     elif project_id:
-        tasks = crud_task.get_by_project(db, project_id=project_id)
+        tasks = crud_story.get_by_project(db, project_id=project_id)
     else:
-        tasks = crud_task.get_multi(db, limit=1000)
+        tasks = crud_story.get_multi(db, limit=1000)
 
     # Group by user
     user_time_data = {}
@@ -157,9 +157,9 @@ def get_task_completion_report(
     current_user: User = Depends(deps.require_permissions(["report:read"]))
 ) -> Any:
     if project_id:
-        tasks = crud_task.get_by_project(db, project_id=project_id)
+        tasks = crud_story.get_by_project(db, project_id=project_id)
     else:
-        tasks = crud_task.get_multi(db, limit=1000)
+        tasks = crud_story.get_multi(db, limit=1000)
 
     # Overall completion stats
     total_tasks = len(tasks)

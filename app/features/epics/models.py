@@ -26,5 +26,5 @@ class Epic(Base):
     # Relationships
     project = relationship("Project", back_populates="epics")
     assignee = relationship("User", back_populates="assigned_epics")
-    tasks = relationship("Task", back_populates="epic_obj", foreign_keys="Task.epic_id")
+    stories = relationship("Story", back_populates="epic", foreign_keys="Story.epic_id")
     backlog_items = relationship("Backlog", back_populates="epic")
