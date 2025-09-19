@@ -26,3 +26,7 @@ class User(Base):
     audit_logs = relationship("AuditLog", back_populates="user")
     assigned_tasks = relationship("Task", back_populates="assignee")
     managed_projects = relationship("Project", back_populates="team_lead")
+    managed_sprints = relationship("Sprint", back_populates="scrum_master")
+    assigned_epics = relationship("Epic", back_populates="assignee")
+    assigned_backlog_items = relationship("Backlog", foreign_keys="Backlog.assignee_id", back_populates="assignee")
+    reported_backlog_items = relationship("Backlog", foreign_keys="Backlog.reporter_id", back_populates="reporter")

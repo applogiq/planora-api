@@ -4,7 +4,7 @@ from sqlalchemy.sql import func
 from app.db.database import Base
 
 class Task(Base):
-    __tablename__ = "tbl_tasks"
+    __tablename__ = "tbl_project_tasks"
 
     id = Column(String, primary_key=True, index=True)
     title = Column(String, nullable=False)
@@ -13,7 +13,9 @@ class Task(Base):
     priority = Column(String, nullable=False)  # low, medium, high, critical
     assignee_id = Column(String, ForeignKey("tbl_users.id"))
     project_id = Column(String, ForeignKey("tbl_projects.id"))
-    sprint = Column(String)
+    sprint_id = Column(String, ForeignKey("tbl_project_sprints.id"))
+    epic_id = Column(String, ForeignKey("tbl_project_epics.id"))
+    sprint = Column(String)  # Keep for backward compatibility
     labels = Column(ARRAY(String))
     due_date = Column(DateTime(timezone=True))
     story_points = Column(Integer)
@@ -25,3 +27,5 @@ class Task(Base):
     # Relationships
     assignee = relationship("User", back_populates="assigned_tasks")
     project = relationship("Project", back_populates="tasks")
+    sprint_obj = relationship("Sprint", back_populates="tasks", foreign_keys=[sprint_id])
+    epic_obj = relationship("Epic", back_populates="tasks", foreign_keys=[epic_id])

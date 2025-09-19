@@ -80,6 +80,56 @@ def create_project(
     project_in: ProjectCreate,
     current_user: User = Depends(deps.require_permissions(["project:write"]))
 ) -> Any:
+    """
+    Create a new project with all required and optional fields.
+
+    **Required fields:**
+    - name: Project name
+    - status: Project status (Planning, Active, On Hold, Completed, Cancelled)
+    - project_type: Type of project (Software Development, Mobile Development, etc.)
+
+    **Optional fields:**
+    - description: Project description
+    - team_lead_id: ID of the team lead user
+    - team_members: List of team member user IDs
+    - customer: Customer name
+    - customer_id: Customer ID
+    - start_date: Project start date
+    - end_date: Project end date
+    - budget: Project budget
+    - priority: Project priority (Low, Medium, High, Critical, Urgent)
+    - methodology: Project methodology (Agile, Scrum, Waterfall, etc.)
+    - color: Project color code (hex format)
+    - tags: Project tags
+    """
+
+    # Validate team lead exists if provided
+    if project_in.team_lead_id:
+        team_lead = crud_user.get(db, id=project_in.team_lead_id)
+        if not team_lead:
+            raise HTTPException(
+                status_code=404,
+                detail=f"Team lead with ID {project_in.team_lead_id} not found"
+            )
+
+    # Validate team members exist if provided
+    if project_in.team_members:
+        for member_id in project_in.team_members:
+            member = crud_user.get(db, id=member_id)
+            if not member:
+                raise HTTPException(
+                    status_code=404,
+                    detail=f"Team member with ID {member_id} not found"
+                )
+
+    # Validate end_date is after start_date if both are provided
+    if project_in.start_date and project_in.end_date:
+        if project_in.end_date <= project_in.start_date:
+            raise HTTPException(
+                status_code=400,
+                detail="End date must be after start date"
+            )
+
     project = crud_project.create(db, obj_in=project_in)
 
     # Log project creation
@@ -88,7 +138,7 @@ def create_project(
         user_name=current_user.name,
         action="CREATE",
         resource="Project",
-        details=f"Created new project: {project.name}",
+        details=f"Created new project: {project.name} (Type: {project.project_type}, Status: {project.status})",
         ip_address=request.client.host,
         user_agent=request.headers.get("user-agent", ""),
         status="success"
@@ -106,12 +156,54 @@ def update_project(
     project_in: ProjectUpdate,
     current_user: User = Depends(deps.require_permissions(["project:write"]))
 ) -> Any:
+    """
+    Update an existing project with validation for all fields.
+
+    **Supported updates:**
+    - Basic info: name, description, status, progress
+    - Dates: start_date, end_date (accepts YYYY-MM-DD or ISO datetime format)
+    - Financial: budget, spent
+    - Team: team_lead_id, team_members (validates user existence)
+    - Customer: customer, customer_id
+    - Project details: priority, methodology, project_type, color, tags
+    """
     project = crud_project.get(db, id=project_id)
     if not project:
         raise HTTPException(
             status_code=404,
             detail="The project with this id does not exist in the system",
         )
+
+    # Validate team lead exists if provided
+    if project_in.team_lead_id:
+        team_lead = crud_user.get(db, id=project_in.team_lead_id)
+        if not team_lead:
+            raise HTTPException(
+                status_code=404,
+                detail=f"Team lead with ID {project_in.team_lead_id} not found"
+            )
+
+    # Validate team members exist if provided
+    if project_in.team_members:
+        for member_id in project_in.team_members:
+            member = crud_user.get(db, id=member_id)
+            if not member:
+                raise HTTPException(
+                    status_code=404,
+                    detail=f"Team member with ID {member_id} not found"
+                )
+
+    # Validate end_date is after start_date if both are provided
+    start_date = project_in.start_date if project_in.start_date is not None else project.start_date
+    end_date = project_in.end_date if project_in.end_date is not None else project.end_date
+
+    if start_date and end_date:
+        if end_date <= start_date:
+            raise HTTPException(
+                status_code=400,
+                detail="End date must be after start date"
+            )
+
     project = crud_project.update(db, db_obj=project, obj_in=project_in)
 
     # Log project update
@@ -120,7 +212,7 @@ def update_project(
         user_name=current_user.name,
         action="UPDATE",
         resource="Project",
-        details=f"Updated project: {project.name}",
+        details=f"Updated project: {project.name} (ID: {project.id})",
         ip_address=request.client.host,
         user_agent=request.headers.get("user-agent", ""),
         status="success"
@@ -254,5 +346,62 @@ def get_project_types(
     current_user: User = Depends(deps.require_permissions(["project:read"]))
 ) -> Any:
     return {
-        "project_types": ["Software Development", "Web Development", "Mobile Development", "Research", "Marketing", "Infrastructure", "Data Analysis", "Design", "Testing", "Maintenance"]
+        "project_types": [
+            "Software Development",
+            "Web Development",
+            "Mobile Development",
+            "AI/ML Development",
+            "Blockchain Development",
+            "IoT Development",
+            "VR/AR Development",
+            "API Development",
+            "Data Analytics",
+            "Infrastructure",
+            "Enterprise Software",
+            "Education Technology",
+            "Health Technology",
+            "Marketing Technology",
+            "Media Technology",
+            "Operations Technology",
+            "Research",
+            "Design",
+            "Testing",
+            "Maintenance"
+        ]
     }
+
+@router.get("/users/team-leads")
+def get_available_team_leads(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(deps.require_permissions(["project:read"]))
+) -> Any:
+    """Get users who can be assigned as team leads (Admin, Project Manager roles)"""
+    team_leads = crud_user.get_users_by_roles(db, roles=["role_admin", "role_project_manager"])
+    return [
+        {
+            "id": user.id,
+            "name": user.name,
+            "email": user.email,
+            "role": user.role.name if user.role else None
+        }
+        for user in team_leads
+    ]
+
+@router.get("/users/team-members")
+def get_available_team_members(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(deps.require_permissions(["project:read"]))
+) -> Any:
+    """Get all active users who can be assigned as team members"""
+    team_members = crud_user.get_active_users(db)
+    return [
+        {
+            "id": user.id,
+            "name": user.name,
+            "email": user.email,
+            "role": user.role.name if user.role else None,
+            "department": user.department,
+            "skills": user.skills or []
+        }
+        for user in team_members
+    ]

@@ -245,6 +245,19 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
             model_class=User
         )
 
+    def get_users_by_roles(self, db: Session, roles: List[str]) -> List[User]:
+        """Get users by role IDs without pagination"""
+        return db.query(User).options(joinedload(User.role)).filter(
+            User.role_id.in_(roles),
+            User.is_active == True
+        ).all()
+
+    def get_active_users(self, db: Session) -> List[User]:
+        """Get all active users without pagination"""
+        return db.query(User).options(joinedload(User.role)).filter(
+            User.is_active == True
+        ).all()
+
 crud_user = CRUDUser(User)
 
 # Export for backward compatibility

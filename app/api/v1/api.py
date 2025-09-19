@@ -6,6 +6,9 @@ def get_api_router() -> APIRouter:
     from app.features.roles.api import router as roles_router
     from app.features.projects.api import router as projects_router
     from app.features.tasks.api import router as tasks_router
+    from app.features.sprints.api import router as sprints_router
+    from app.features.epics.api import router as epics_router
+    from app.features.backlog.api import router as backlog_router
     from app.features.auth.api import router as auth_router
     from app.features.audit_logs.api import router as audit_logs_router
     from app.features.notifications.api import router as notifications_router
@@ -21,6 +24,9 @@ def get_api_router() -> APIRouter:
     api_router.include_router(roles_router, prefix="/roles", tags=["roles"])
     api_router.include_router(projects_router, prefix="/projects", tags=["projects"])
     api_router.include_router(tasks_router, prefix="/tasks", tags=["tasks"])
+    api_router.include_router(sprints_router, prefix="/sprints", tags=["sprints"])
+    api_router.include_router(epics_router, prefix="/epics", tags=["epics"])
+    api_router.include_router(backlog_router, prefix="/backlog", tags=["backlog"])
     api_router.include_router(audit_logs_router, prefix="/audit-logs", tags=["audit-logs"])
     api_router.include_router(dashboard_router, prefix="/dashboard", tags=["dashboard"])
     api_router.include_router(reports_router, prefix="/reports", tags=["reports"])
