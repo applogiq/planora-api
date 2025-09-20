@@ -1,99 +1,14 @@
--- Planora API Database Setup Script
--- This script creates all the necessary tables for the Planora project management system
+-- Planora API - Project Tables Migration
+-- Creates project management tables (projects, epics, sprints, tasks, backlog)
 
--- Drop tables if they exist (in reverse dependency order)
-DROP TABLE IF EXISTS tbl_audit_logs CASCADE;
+-- Drop existing project tables in reverse dependency order
 DROP TABLE IF EXISTS tbl_project_tasks CASCADE;
 DROP TABLE IF EXISTS tbl_project_backlog CASCADE;
 DROP TABLE IF EXISTS tbl_project_sprints CASCADE;
 DROP TABLE IF EXISTS tbl_project_epics CASCADE;
 DROP TABLE IF EXISTS tbl_projects CASCADE;
-DROP TABLE IF EXISTS tbl_users CASCADE;
-DROP TABLE IF EXISTS tbl_roles CASCADE;
-DROP TABLE IF EXISTS tbl_master_project_methodology CASCADE;
-DROP TABLE IF EXISTS tbl_master_project_type CASCADE;
-DROP TABLE IF EXISTS tbl_master_project_status CASCADE;
-DROP TABLE IF EXISTS tbl_master_priority CASCADE;
 
--- Master Tables
-
--- Priority Master Table
-CREATE TABLE tbl_master_priority (
-    id VARCHAR PRIMARY KEY,
-    name VARCHAR UNIQUE NOT NULL,
-    description TEXT,
-    color VARCHAR,
-    level INTEGER NOT NULL,
-    is_active BOOLEAN DEFAULT TRUE,
-    sort_order INTEGER DEFAULT 0,
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-    updated_at TIMESTAMP WITH TIME ZONE
-);
-
--- Project Status Master Table
-CREATE TABLE tbl_master_project_status (
-    id VARCHAR PRIMARY KEY,
-    name VARCHAR UNIQUE NOT NULL,
-    description TEXT,
-    color VARCHAR,
-    is_active BOOLEAN DEFAULT TRUE,
-    sort_order INTEGER DEFAULT 0,
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-    updated_at TIMESTAMP WITH TIME ZONE
-);
-
--- Project Type Master Table
-CREATE TABLE tbl_master_project_type (
-    id VARCHAR PRIMARY KEY,
-    name VARCHAR UNIQUE NOT NULL,
-    description TEXT,
-    is_active BOOLEAN DEFAULT TRUE,
-    sort_order INTEGER DEFAULT 0,
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-    updated_at TIMESTAMP WITH TIME ZONE
-);
-
--- Project Methodology Master Table
-CREATE TABLE tbl_master_project_methodology (
-    id VARCHAR PRIMARY KEY,
-    name VARCHAR UNIQUE NOT NULL,
-    description TEXT,
-    is_active BOOLEAN DEFAULT TRUE,
-    sort_order INTEGER DEFAULT 0,
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-    updated_at TIMESTAMP WITH TIME ZONE
-);
-
--- Core Tables
-
--- Roles Table
-CREATE TABLE tbl_roles (
-    id VARCHAR PRIMARY KEY,
-    name VARCHAR UNIQUE NOT NULL,
-    description TEXT,
-    permissions TEXT[],
-    is_active BOOLEAN DEFAULT TRUE,
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-    updated_at TIMESTAMP WITH TIME ZONE
-);
-
--- Users Table
-CREATE TABLE tbl_users (
-    id VARCHAR PRIMARY KEY,
-    email VARCHAR UNIQUE NOT NULL,
-    password VARCHAR NOT NULL,
-    name VARCHAR NOT NULL,
-    role_id VARCHAR NOT NULL REFERENCES tbl_roles(id),
-    avatar VARCHAR,
-    is_active BOOLEAN DEFAULT TRUE,
-    last_login TIMESTAMP WITH TIME ZONE,
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-    updated_at TIMESTAMP WITH TIME ZONE,
-    department VARCHAR,
-    skills TEXT[],
-    phone VARCHAR,
-    timezone VARCHAR
-);
+-- Project Management Tables Creation
 
 -- Projects Table
 CREATE TABLE tbl_projects (
@@ -206,47 +121,28 @@ CREATE TABLE tbl_project_backlog (
     updated_at TIMESTAMP WITH TIME ZONE
 );
 
--- Audit Logs Table
-CREATE TABLE tbl_audit_logs (
-    id VARCHAR PRIMARY KEY,
-    user_id VARCHAR REFERENCES tbl_users(id),
-    user_name VARCHAR,
-    action VARCHAR NOT NULL,
-    resource VARCHAR NOT NULL,
-    details TEXT,
-    timestamp TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-    ip_address VARCHAR,
-    user_agent TEXT,
-    status VARCHAR
-);
-
--- Create indexes for better performance
-CREATE INDEX idx_users_email ON tbl_users(email);
-CREATE INDEX idx_users_role_id ON tbl_users(role_id);
+-- Indexes for better performance
 CREATE INDEX idx_projects_team_lead_id ON tbl_projects(team_lead_id);
 CREATE INDEX idx_projects_status ON tbl_projects(status);
+CREATE INDEX idx_projects_priority ON tbl_projects(priority);
 CREATE INDEX idx_epics_project_id ON tbl_project_epics(project_id);
 CREATE INDEX idx_epics_assignee_id ON tbl_project_epics(assignee_id);
+CREATE INDEX idx_epics_status ON tbl_project_epics(status);
 CREATE INDEX idx_sprints_project_id ON tbl_project_sprints(project_id);
+CREATE INDEX idx_sprints_status ON tbl_project_sprints(status);
 CREATE INDEX idx_tasks_assignee_id ON tbl_project_tasks(assignee_id);
 CREATE INDEX idx_tasks_project_id ON tbl_project_tasks(project_id);
 CREATE INDEX idx_tasks_sprint_id ON tbl_project_tasks(sprint_id);
 CREATE INDEX idx_tasks_epic_id ON tbl_project_tasks(epic_id);
+CREATE INDEX idx_tasks_status ON tbl_project_tasks(status);
 CREATE INDEX idx_backlog_project_id ON tbl_project_backlog(project_id);
 CREATE INDEX idx_backlog_epic_id ON tbl_project_backlog(epic_id);
-CREATE INDEX idx_audit_logs_user_id ON tbl_audit_logs(user_id);
-CREATE INDEX idx_audit_logs_timestamp ON tbl_audit_logs(timestamp);
+CREATE INDEX idx_backlog_assignee_id ON tbl_project_backlog(assignee_id);
+CREATE INDEX idx_backlog_status ON tbl_project_backlog(status);
 
--- Add comments to tables
-COMMENT ON TABLE tbl_roles IS 'User roles and permissions management';
-COMMENT ON TABLE tbl_users IS 'System users with profile information';
+-- Comments
 COMMENT ON TABLE tbl_projects IS 'Project management data';
 COMMENT ON TABLE tbl_project_epics IS 'Project epics for organizing features';
 COMMENT ON TABLE tbl_project_sprints IS 'Sprint management for agile methodology';
 COMMENT ON TABLE tbl_project_tasks IS 'Individual tasks within projects';
 COMMENT ON TABLE tbl_project_backlog IS 'Product backlog items';
-COMMENT ON TABLE tbl_audit_logs IS 'System audit trail for tracking changes';
-COMMENT ON TABLE tbl_master_priority IS 'Master data for priority levels';
-COMMENT ON TABLE tbl_master_project_status IS 'Master data for project statuses';
-COMMENT ON TABLE tbl_master_project_type IS 'Master data for project types';
-COMMENT ON TABLE tbl_master_project_methodology IS 'Master data for project methodologies';
