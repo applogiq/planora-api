@@ -61,6 +61,20 @@ class PriorityResponse(PriorityBase):
     class Config:
         from_attributes = True
 
+class DepartmentBase(BaseModel):
+    name: str
+    description: Optional[str] = None
+    is_active: bool = True
+    sort_order: int = 0
+
+class DepartmentResponse(DepartmentBase):
+    id: str
+    created_at: datetime
+    updated_at: Optional[datetime] = None
+
+    class Config:
+        from_attributes = True
+
 class ProjectMastersResponse(BaseModel):
     methodologies: List[ProjectMethodologyResponse]
     types: List[ProjectTypeResponse]

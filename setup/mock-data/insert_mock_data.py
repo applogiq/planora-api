@@ -12,8 +12,7 @@ import os
 from pathlib import Path
 import io
 
-# Set stdout to handle Unicode properly
-sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8', errors='replace')
+# Unicode handling is done automatically in Python 3
 
 # Add the current directory to Python path
 current_dir = Path(__file__).parent.parent

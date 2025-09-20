@@ -57,7 +57,7 @@ def create_all_project_tables_and_insert_data():
             from app.features.projects.models import Project
             from app.features.masters.models import ProjectMethodology, ProjectType, ProjectStatus, Priority
 
-            db.query(Task).delete()
+            db.query(Story).delete()
             db.query(Backlog).delete()
             db.query(Sprint).delete()
             db.query(Epic).delete()
@@ -89,8 +89,8 @@ def create_all_project_tables_and_insert_data():
             print("\n🔄 STEP 5: Setting up Backlog Items...")
             insert_backlog(db)
 
-            # Step 6: Insert Tasks
-            print("\n🔄 STEP 6: Setting up Tasks...")
+            # Step 6: Insert Stories
+            print("\n🔄 STEP 6: Setting up Stories...")
             insert_tasks(db)
 
         except Exception as e:

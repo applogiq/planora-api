@@ -72,3 +72,14 @@ def get_priorities(skip: int = 0, limit: int = 100, db: Session = Depends(get_db
     """
     priorities = crud.get_priorities(db, skip=skip, limit=limit)
     return [schemas.PriorityResponse.from_orm(priority) for priority in priorities]
+
+@router.get("/department", response_model=List[schemas.DepartmentResponse], summary="Get Departments")
+def get_departments(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
+    """
+    Get all active departments.
+
+    - **skip**: Number of records to skip (for pagination)
+    - **limit**: Maximum number of records to return
+    """
+    departments = crud.get_departments(db, skip=skip, limit=limit)
+    return [schemas.DepartmentResponse.from_orm(department) for department in departments]

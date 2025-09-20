@@ -22,6 +22,11 @@ def get_priorities(db: Session, skip: int = 0, limit: int = 100) -> List[models.
         models.Priority.is_active == True
     ).order_by(models.Priority.sort_order, models.Priority.level).offset(skip).limit(limit).all()
 
+def get_departments(db: Session, skip: int = 0, limit: int = 100) -> List[models.Department]:
+    return db.query(models.Department).filter(
+        models.Department.is_active == True
+    ).order_by(models.Department.sort_order, models.Department.name).offset(skip).limit(limit).all()
+
 def get_all_project_masters(db: Session):
     return {
         "methodologies": get_project_methodologies(db),
