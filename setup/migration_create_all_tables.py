@@ -77,9 +77,9 @@ def create_tables_using_sqlalchemy():
         from app.features.epics.models import Epic
         from app.features.sprints.models import Sprint
         from app.features.stories.models import Story
-        from app.features.backlog.models import Backlog
         from app.features.audit_logs.models import AuditLog
-        from app.features.masters.models import ProjectMethodology, ProjectType, ProjectStatus, Priority, Department
+        from app.features.masters.models import ProjectMethodology, ProjectType, ProjectStatus, Priority, Department, Industry
+        from app.features.customers.models import Customer
 
         # Create all tables
         Base.metadata.create_all(bind=engine)
@@ -100,13 +100,14 @@ def verify_tables_created():
         "tbl_master_project_type",
         "tbl_master_project_methodology",
         "tbl_master_department",
+        "tbl_master_industry",
+        "tbl_customers",
         "tbl_roles",
         "tbl_users",
         "tbl_projects",
         "tbl_project_epics",
         "tbl_project_sprints",
         "tbl_project_stories",
-        "tbl_project_backlog",
         "tbl_audit_logs"
     ]
 
@@ -151,11 +152,12 @@ def main():
     print("🚀 PLANORA API - CREATE ALL TABLES MIGRATION")
     print("=" * 80)
     print("This script will create all tables for the Planora system:")
-    print("  1. Master tables (priority, status, type, methodology)")
+    print("  1. Master tables (priority, status, type, methodology, department, industry)")
     print("  2. Core tables (roles, users)")
-    print("  3. Project tables (projects, epics, sprints, tasks, backlog)")
-    print("  4. System tables (audit_logs)")
-    print("  5. Database indexes for performance")
+    print("  3. Customer tables (customers)")
+    print("  4. Project tables (projects, epics, sprints, tasks, backlog)")
+    print("  5. System tables (audit_logs)")
+    print("  6. Database indexes for performance")
     print("\n" + "=" * 80)
 
     try:

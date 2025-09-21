@@ -4,7 +4,7 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from sqlalchemy.orm import Session
 from app.db.database import SessionLocal, engine
-from app.features.masters.models import ProjectMethodology, ProjectType, ProjectStatus, Priority
+from app.features.masters.models import ProjectMethodology, ProjectType, ProjectStatus, Priority, Department, Industry
 from app.db.database import Base
 import uuid
 
@@ -32,6 +32,14 @@ def insert_master_data():
         # Insert Priorities
         print("Inserting priorities...")
         insert_priorities(db)
+
+        # Insert Departments
+        print("Inserting departments...")
+        insert_departments(db)
+
+        # Insert Industries
+        print("Inserting industries...")
+        insert_industries(db)
 
         print("[SUCCESS] All master data inserted successfully!")
 
@@ -305,6 +313,281 @@ def insert_priorities(db: Session):
 
     db.commit()
     print(f"[SUCCESS] Inserted {len(priorities_data)} priorities")
+
+def insert_departments(db: Session):
+    """Insert department master data"""
+    departments_data = [
+        {
+            "id": str(uuid.uuid4()),
+            "name": "Engineering",
+            "description": "Software development and technical teams",
+            "is_active": True,
+            "sort_order": 1
+        },
+        {
+            "id": str(uuid.uuid4()),
+            "name": "Product Management",
+            "description": "Product strategy and roadmap management",
+            "is_active": True,
+            "sort_order": 2
+        },
+        {
+            "id": str(uuid.uuid4()),
+            "name": "Design",
+            "description": "User experience and interface design teams",
+            "is_active": True,
+            "sort_order": 3
+        },
+        {
+            "id": str(uuid.uuid4()),
+            "name": "Quality Assurance",
+            "description": "Software testing and quality control",
+            "is_active": True,
+            "sort_order": 4
+        },
+        {
+            "id": str(uuid.uuid4()),
+            "name": "DevOps",
+            "description": "Infrastructure and deployment operations",
+            "is_active": True,
+            "sort_order": 5
+        },
+        {
+            "id": str(uuid.uuid4()),
+            "name": "Marketing",
+            "description": "Marketing and promotional activities",
+            "is_active": True,
+            "sort_order": 6
+        },
+        {
+            "id": str(uuid.uuid4()),
+            "name": "Sales",
+            "description": "Sales and business development",
+            "is_active": True,
+            "sort_order": 7
+        },
+        {
+            "id": str(uuid.uuid4()),
+            "name": "Operations",
+            "description": "Business operations and process management",
+            "is_active": True,
+            "sort_order": 8
+        },
+        {
+            "id": str(uuid.uuid4()),
+            "name": "Finance",
+            "description": "Financial planning and accounting",
+            "is_active": True,
+            "sort_order": 9
+        },
+        {
+            "id": str(uuid.uuid4()),
+            "name": "Human Resources",
+            "description": "HR and talent management",
+            "is_active": True,
+            "sort_order": 10
+        },
+        {
+            "id": str(uuid.uuid4()),
+            "name": "IT",
+            "description": "Information technology and system administration",
+            "is_active": True,
+            "sort_order": 11
+        },
+        {
+            "id": str(uuid.uuid4()),
+            "name": "Management",
+            "description": "Executive and senior management",
+            "is_active": True,
+            "sort_order": 12
+        },
+        {
+            "id": str(uuid.uuid4()),
+            "name": "Customer Support",
+            "description": "Customer service and technical support",
+            "is_active": True,
+            "sort_order": 13
+        },
+        {
+            "id": str(uuid.uuid4()),
+            "name": "Data Analytics",
+            "description": "Data analysis and business intelligence",
+            "is_active": True,
+            "sort_order": 14
+        },
+        {
+            "id": str(uuid.uuid4()),
+            "name": "Security",
+            "description": "Information security and compliance",
+            "is_active": True,
+            "sort_order": 15
+        }
+    ]
+
+    for department_data in departments_data:
+        # Check if department already exists
+        existing = db.query(Department).filter(Department.name == department_data["name"]).first()
+        if not existing:
+            db_department = Department(**department_data)
+            db.add(db_department)
+
+    db.commit()
+    print(f"[SUCCESS] Inserted {len(departments_data)} departments")
+
+def insert_industries(db: Session):
+    """Insert industry master data"""
+    industries_data = [
+        {
+            "id": str(uuid.uuid4()),
+            "name": "Technology",
+            "description": "Technology and software development companies",
+            "is_active": True,
+            "sort_order": 1
+        },
+        {
+            "id": str(uuid.uuid4()),
+            "name": "Healthcare",
+            "description": "Healthcare and medical services industry",
+            "is_active": True,
+            "sort_order": 2
+        },
+        {
+            "id": str(uuid.uuid4()),
+            "name": "Finance",
+            "description": "Banking, finance, and insurance services",
+            "is_active": True,
+            "sort_order": 3
+        },
+        {
+            "id": str(uuid.uuid4()),
+            "name": "E-commerce",
+            "description": "Online retail and e-commerce platforms",
+            "is_active": True,
+            "sort_order": 4
+        },
+        {
+            "id": str(uuid.uuid4()),
+            "name": "Education",
+            "description": "Educational institutions and e-learning platforms",
+            "is_active": True,
+            "sort_order": 5
+        },
+        {
+            "id": str(uuid.uuid4()),
+            "name": "Manufacturing",
+            "description": "Manufacturing and industrial production",
+            "is_active": True,
+            "sort_order": 6
+        },
+        {
+            "id": str(uuid.uuid4()),
+            "name": "Media & Entertainment",
+            "description": "Media, entertainment, and content creation",
+            "is_active": True,
+            "sort_order": 7
+        },
+        {
+            "id": str(uuid.uuid4()),
+            "name": "Real Estate",
+            "description": "Real estate and property management",
+            "is_active": True,
+            "sort_order": 8
+        },
+        {
+            "id": str(uuid.uuid4()),
+            "name": "Transportation",
+            "description": "Transportation and logistics services",
+            "is_active": True,
+            "sort_order": 9
+        },
+        {
+            "id": str(uuid.uuid4()),
+            "name": "Energy",
+            "description": "Energy and utilities sector",
+            "is_active": True,
+            "sort_order": 10
+        },
+        {
+            "id": str(uuid.uuid4()),
+            "name": "Telecommunications",
+            "description": "Telecommunications and network services",
+            "is_active": True,
+            "sort_order": 11
+        },
+        {
+            "id": str(uuid.uuid4()),
+            "name": "Agriculture",
+            "description": "Agriculture and food production",
+            "is_active": True,
+            "sort_order": 12
+        },
+        {
+            "id": str(uuid.uuid4()),
+            "name": "Consulting",
+            "description": "Consulting and professional services",
+            "is_active": True,
+            "sort_order": 13
+        },
+        {
+            "id": str(uuid.uuid4()),
+            "name": "Non-Profit",
+            "description": "Non-profit organizations and NGOs",
+            "is_active": True,
+            "sort_order": 14
+        },
+        {
+            "id": str(uuid.uuid4()),
+            "name": "Government",
+            "description": "Government and public sector",
+            "is_active": True,
+            "sort_order": 15
+        },
+        {
+            "id": str(uuid.uuid4()),
+            "name": "Retail",
+            "description": "Traditional retail and brick-and-mortar stores",
+            "is_active": True,
+            "sort_order": 16
+        },
+        {
+            "id": str(uuid.uuid4()),
+            "name": "Automotive",
+            "description": "Automotive industry and vehicle manufacturing",
+            "is_active": True,
+            "sort_order": 17
+        },
+        {
+            "id": str(uuid.uuid4()),
+            "name": "Travel & Tourism",
+            "description": "Travel, tourism, and hospitality services",
+            "is_active": True,
+            "sort_order": 18
+        },
+        {
+            "id": str(uuid.uuid4()),
+            "name": "Gaming",
+            "description": "Gaming and interactive entertainment",
+            "is_active": True,
+            "sort_order": 19
+        },
+        {
+            "id": str(uuid.uuid4()),
+            "name": "Cryptocurrency",
+            "description": "Blockchain and cryptocurrency industry",
+            "is_active": True,
+            "sort_order": 20
+        }
+    ]
+
+    for industry_data in industries_data:
+        # Check if industry already exists
+        existing = db.query(Industry).filter(Industry.name == industry_data["name"]).first()
+        if not existing:
+            db_industry = Industry(**industry_data)
+            db.add(db_industry)
+
+    db.commit()
+    print(f"[SUCCESS] Inserted {len(industries_data)} industries")
 
 if __name__ == "__main__":
     insert_master_data()

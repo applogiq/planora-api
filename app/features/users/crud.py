@@ -17,7 +17,7 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
             password=get_password_hash(obj_in.password),
             name=obj_in.name,
             role_id=obj_in.role_id,
-            avatar=obj_in.avatar,
+            user_profile=obj_in.user_profile,
             is_active=obj_in.is_active,
             department=obj_in.department,
             skills=obj_in.skills,
@@ -27,6 +27,9 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
         db.add(db_obj)
         db.commit()
         db.refresh(db_obj)
+
+        # Load the role relationship to ensure permissions are accessible for new users
+        db_obj = db.query(User).options(joinedload(User.role)).filter(User.id == db_obj.id).first()
         return db_obj
 
     def update(
@@ -36,11 +39,36 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
             update_data = obj_in
         else:
             update_data = obj_in.dict(exclude_unset=True)
+
+        # Handle password hashing
         if "password" in update_data:
             hashed_password = get_password_hash(update_data["password"])
             del update_data["password"]
             update_data["password"] = hashed_password
-        return super().update(db, db_obj=db_obj, obj_in=update_data)
+
+        # Check if role is being updated
+        role_changed = False
+        old_role_id = db_obj.role_id
+        new_role_id = update_data.get("role_id")
+
+        if new_role_id and new_role_id != old_role_id:
+            role_changed = True
+
+        # Update the user
+        updated_user = super().update(db, db_obj=db_obj, obj_in=update_data)
+
+        # Always refresh the user to get updated role permissions (especially important for role changes)
+        db.refresh(updated_user)
+        # Load the role relationship to ensure permissions are accessible
+        updated_user = db.query(User).options(joinedload(User.role)).filter(User.id == updated_user.id).first()
+
+        # If role changed, ensure the session is properly committed and role is loaded
+        if role_changed:
+            db.commit()
+            # Force a fresh query to ensure we get the latest role data
+            updated_user = db.query(User).options(joinedload(User.role)).filter(User.id == updated_user.id).first()
+
+        return updated_user
 
     def authenticate(self, db: Session, *, email: str, password: str) -> Optional[User]:
         user = self.get_by_email(db, email=email)
@@ -257,6 +285,10 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
         return db.query(User).options(joinedload(User.role)).filter(
             User.is_active == True
         ).all()
+
+    def refresh_user_permissions(self, db: Session, user_id: str) -> Optional[User]:
+        """Force refresh user with latest role and permissions"""
+        return db.query(User).options(joinedload(User.role)).filter(User.id == user_id).first()
 
 crud_user = CRUDUser(User)
 

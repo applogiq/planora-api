@@ -9,7 +9,7 @@ class UserBase(BaseModel):
     email: EmailStr
     name: str
     role_id: str
-    avatar: Optional[str] = None
+    user_profile: Optional[str] = None
     is_active: bool = True
     department: Optional[str] = None
     skills: Optional[List[str]] = None
@@ -18,38 +18,18 @@ class UserBase(BaseModel):
 
 class UserCreate(UserBase):
     password: str
-    avatar_url: Optional[str] = Field(None, description="External URL for profile picture")
-
-    @validator('avatar_url')
-    def validate_avatar_url(cls, v):
-        if v is not None:
-            from urllib.parse import urlparse
-            parsed = urlparse(v)
-            if not parsed.scheme in ['http', 'https']:
-                raise ValueError('Avatar URL must start with http:// or https://')
-        return v
 
 class UserUpdate(BaseModel):
     email: Optional[EmailStr] = None
     name: Optional[str] = None
     role_id: Optional[str] = None
-    avatar: Optional[str] = None
+    user_profile: Optional[str] = None
     is_active: Optional[bool] = None
     department: Optional[str] = None
     skills: Optional[List[str]] = None
     phone: Optional[str] = None
     timezone: Optional[str] = None
     password: Optional[str] = None
-    avatar_url: Optional[str] = Field(None, description="External URL for profile picture")
-
-    @validator('avatar_url')
-    def validate_avatar_url(cls, v):
-        if v is not None:
-            from urllib.parse import urlparse
-            parsed = urlparse(v)
-            if not parsed.scheme in ['http', 'https']:
-                raise ValueError('Avatar URL must start with http:// or https://')
-        return v
 
 class UserInDB(UserBase):
     id: str

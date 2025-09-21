@@ -33,7 +33,6 @@ def verify_table_counts():
         "tbl_project_epics": 25,
         "tbl_project_sprints": 25,
         "tbl_project_stories": 25,
-        "tbl_project_backlog": 25,
         "tbl_audit_logs": 10
     }
 
@@ -126,16 +125,6 @@ def verify_data_relationships():
             """,
             'expected': 0
         },
-        {
-            'name': 'Backlog items belong to valid projects',
-            'query': """
-                SELECT COUNT(*) as invalid_count
-                FROM tbl_project_backlog b
-                LEFT JOIN tbl_projects p ON b.project_id = p.id
-                WHERE b.project_id IS NOT NULL AND p.id IS NULL
-            """,
-            'expected': 0
-        }
     ]
 
     try:

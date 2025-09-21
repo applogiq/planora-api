@@ -67,18 +67,15 @@ async def upload_user_avatar(
     request: Request,
     db: Session = Depends(get_db),
     user_id: str,
-    avatar_file: Optional[UploadFile] = File(None),
-    avatar_url: Optional[str] = Form(None),
+    user_profile: Optional[UploadFile] = File(None),
     current_user: User = Depends(deps.require_permissions(["user:write"]))
 ) -> Any:
     """
     Upload or update user profile picture
 
     You can provide a profile picture in two ways:
-    1. Upload a file (avatar_file): PNG/JPEG only, max 2MB
-    2. Provide an external URL (avatar_url): Must be a valid image URL
-
-    Cannot provide both file and URL - choose one option.
+    1. Upload a file (user_profile): PNG/JPEG only, max 2MB
+    If no file is uploaded, default.png will be used.
     """
     user = crud_user.get(db, id=user_id)
     if not user:
@@ -88,18 +85,17 @@ async def upload_user_avatar(
         )
 
     # Remove old avatar if it's a local file
-    if user.avatar and user.avatar.startswith('/public/user-profile/'):
-        delete_profile_image(user.avatar)
+    if user.user_profile and user.user_profile.startswith('/public/user-profile/'):
+        delete_profile_image(user.user_profile)
 
     # Process new profile picture (uses default if none provided)
     avatar_path = await process_profile_picture(
-        file=avatar_file,
-        external_url=avatar_url,
+        file=user_profile,
         use_default=True
     )
 
     # Update user with new avatar
-    user = crud_user.update(db, db_obj=user, obj_in={"avatar": avatar_path})
+    user = crud_user.update(db, db_obj=user, obj_in={"user_profile": avatar_path})
 
     # Log avatar update
     audit_log = AuditLogCreate(
@@ -133,11 +129,11 @@ def remove_user_avatar(
         )
 
     # Remove avatar file if it's a local file (but not if it's the default)
-    if user.avatar and user.avatar.startswith('/public/user-profile/') and user.avatar != '/public/user-profile/default.png':
-        delete_profile_image(user.avatar)
+    if user.user_profile and user.user_profile.startswith('/public/user-profile/') and user.user_profile != '/public/user-profile/default.png':
+        delete_profile_image(user.user_profile)
 
     # Update user to use default avatar
-    user = crud_user.update(db, db_obj=user, obj_in={"avatar": "/public/user-profile/default.png"})
+    user = crud_user.update(db, db_obj=user, obj_in={"user_profile": "/public/user-profile/default.png"})
 
     # Log avatar removal
     audit_log = AuditLogCreate(
@@ -183,18 +179,15 @@ async def create_user(
     skills: Optional[str] = Form(None),  # JSON string of array
     phone: Optional[str] = Form(None),
     timezone: Optional[str] = Form(None),
-    avatar_file: Optional[UploadFile] = File(None),
-    avatar_url: Optional[str] = Form(None),
+    user_profile: Optional[UploadFile] = File(None),
     current_user: User = Depends(deps.require_permissions(["user:write"]))
 ) -> Any:
     """
     Create new user with optional profile picture
 
     You can provide a profile picture in two ways:
-    1. Upload a file (avatar_file): PNG/JPEG only, max 2MB
-    2. Provide an external URL (avatar_url): Must be a valid image URL
-
-    Cannot provide both file and URL - choose one option.
+    1. Upload a file (user_profile): PNG/JPEG only, max 2MB
+    If no file is uploaded, default.png will be used.
     """
     # Check if user already exists
     user = crud_user.get_by_email(db, email=email)
@@ -206,8 +199,7 @@ async def create_user(
 
     # Process profile picture (automatically uses default if none provided)
     avatar_path = await process_profile_picture(
-        file=avatar_file,
-        external_url=avatar_url,
+        file=user_profile,
         use_default=True
     )
 
@@ -227,7 +219,7 @@ async def create_user(
         password=password,
         name=name,
         role_id=role_id,
-        avatar=avatar_path,
+        user_profile=avatar_path,
         is_active=is_active,
         department=department,
         skills=skills_list,
@@ -267,8 +259,7 @@ async def update_user(
     phone: Optional[str] = Form(None),
     timezone: Optional[str] = Form(None),
     password: Optional[str] = Form(None),
-    avatar_file: Optional[UploadFile] = File(None),
-    avatar_url: Optional[str] = Form(None),
+    user_profile: Optional[UploadFile] = File(None),
     remove_avatar: bool = Form(False),
     current_user: User = Depends(deps.require_permissions(["user:write"]))
 ) -> Any:
@@ -276,9 +267,8 @@ async def update_user(
     Update user with optional profile picture update
 
     Profile picture options:
-    1. Upload new file (avatar_file): PNG/JPEG only, max 2MB
-    2. Set external URL (avatar_url): Must be a valid image URL
-    3. Remove current avatar (remove_avatar=true)
+    1. Upload new file (user_profile): PNG/JPEG only, max 2MB
+    2. Remove current avatar (remove_avatar=true)
 
     Cannot provide both file and URL - choose one option.
     """
@@ -289,24 +279,28 @@ async def update_user(
             detail="The user with this id does not exist in the system",
         )
 
+    # Track role change for audit logging
+    old_role_id = user.role_id
+    old_role_name = user.role.name if user.role else "No Role"
+    role_changed = False
+
     # Handle avatar updates
     avatar_path = None
     if remove_avatar:
         # Remove current avatar
-        if user.avatar and user.avatar.startswith('/public/user-profile/'):
-            delete_profile_image(user.avatar)
+        if user.user_profile and user.user_profile.startswith('/public/user-profile/'):
+            delete_profile_image(user.user_profile)
         avatar_path = None
-    elif avatar_file or avatar_url:
+    elif user_profile:
         # Update avatar
-        if user.avatar and user.avatar.startswith('/public/user-profile/'):
-            delete_profile_image(user.avatar)
+        if user.user_profile and user.user_profile.startswith('/public/user-profile/'):
+            delete_profile_image(user.user_profile)
         avatar_path = await process_profile_picture(
-            file=avatar_file,
-            external_url=avatar_url
+            file=user_profile
         )
     else:
         # Keep existing avatar
-        avatar_path = user.avatar
+        avatar_path = user.user_profile
 
     # Parse skills if provided
     skills_list = None
@@ -329,6 +323,8 @@ async def update_user(
         update_data["name"] = name
     if role_id is not None:
         update_data["role_id"] = role_id
+        if role_id != old_role_id:
+            role_changed = True
     if is_active is not None:
         update_data["is_active"] = is_active
     if department is not None:
@@ -342,17 +338,35 @@ async def update_user(
     if password is not None:
         update_data["password"] = password
 
-    # Always update avatar (could be None, new path, or existing path)
-    update_data["avatar"] = avatar_path
+    # Always update user_profile (could be None, new path, or existing path)
+    update_data["user_profile"] = avatar_path
 
     user = crud_user.update(db, db_obj=user, obj_in=update_data)
 
     # Log user update
     details = f"Updated user: {user.email}"
-    if avatar_file or avatar_url:
+    if user_profile:
         details += " with new profile picture"
     elif remove_avatar:
         details += " and removed profile picture"
+
+    # Add role change details to audit log
+    if role_changed:
+        new_role_name = user.role.name if user.role else "No Role"
+        details += f" | Role changed from '{old_role_name}' to '{new_role_name}'"
+
+        # Log additional role change audit entry
+        role_audit_log = AuditLogCreate(
+            user_id=current_user.id,
+            user_name=current_user.name,
+            action="UPDATE",
+            resource="User Role Matrix",
+            details=f"Role updated for user {user.email}: {old_role_name} → {new_role_name}. New permissions: {user.role.permissions if user.role else []}",
+            ip_address=request.client.host,
+            user_agent=request.headers.get("user-agent", ""),
+            status="success"
+        )
+        crud_audit_log.create(db=db, obj_in=role_audit_log)
 
     audit_log = AuditLogCreate(
         user_id=current_user.id,
@@ -381,6 +395,70 @@ def read_user(
             status_code=404,
             detail="The user with this id does not exist in the system",
         )
+    return user
+
+@router.patch("/{user_id}", response_model=UserSchema)
+def update_user_status(
+    *,
+    request: Request,
+    db: Session = Depends(get_db),
+    user_id: str,
+    status_update: dict,
+    current_user: User = Depends(deps.require_permissions(["user:write"]))
+) -> Any:
+    """
+    Update user status (activate/deactivate)
+
+    Payload: {"is_active": true/false}
+    """
+    user = crud_user.get(db, id=user_id)
+    if not user:
+        raise HTTPException(
+            status_code=404,
+            detail="The user with this id does not exist in the system",
+        )
+
+    # Validate payload
+    if "is_active" not in status_update:
+        raise HTTPException(
+            status_code=400,
+            detail="Missing 'is_active' field in request body"
+        )
+
+    is_active = status_update["is_active"]
+    if not isinstance(is_active, bool):
+        raise HTTPException(
+            status_code=400,
+            detail="'is_active' field must be a boolean value"
+        )
+
+    # Prevent self-deactivation
+    if user.id == current_user.id and not is_active:
+        raise HTTPException(
+            status_code=400,
+            detail="Users cannot deactivate themselves"
+        )
+
+    # Store old status for audit logging
+    old_status = "Active" if user.is_active else "Inactive"
+    new_status = "Active" if is_active else "Inactive"
+
+    # Update user status
+    user = crud_user.update(db, db_obj=user, obj_in={"is_active": is_active})
+
+    # Log status change
+    audit_log = AuditLogCreate(
+        user_id=current_user.id,
+        user_name=current_user.name,
+        action="UPDATE",
+        resource="User Status",
+        details=f"User status changed for {user.email}: {old_status} → {new_status}",
+        ip_address=request.client.host,
+        user_agent=request.headers.get("user-agent", ""),
+        status="success"
+    )
+    crud_audit_log.create(db=db, obj_in=audit_log)
+
     return user
 
 @router.delete("/{user_id}", response_model=UserSchema)
@@ -421,6 +499,58 @@ def delete_user(
 
     return user
 
+@router.get("/{user_id}/permissions")
+def get_user_permissions(
+    *,
+    db: Session = Depends(get_db),
+    user_id: str,
+    current_user: User = Depends(deps.require_permissions(["user:read"]))
+) -> Any:
+    """
+    Get user's current role and permissions (for debugging role matrix updates)
+    """
+    user = crud_user.get(db, id=user_id)
+    if not user:
+        raise HTTPException(
+            status_code=404,
+            detail="The user with this id does not exist in the system",
+        )
+
+    return {
+        "user_id": user.id,
+        "user_email": user.email,
+        "user_name": user.name,
+        "is_active": user.is_active,
+        "role_id": user.role_id,
+        "role_name": user.role.name if user.role else None,
+        "permissions": user.role.permissions if user.role else [],
+        "role_description": user.role.description if user.role else None
+    }
+
+@router.post("/{user_id}/refresh-permissions")
+def refresh_user_permissions(
+    *,
+    db: Session = Depends(get_db),
+    user_id: str,
+    current_user: User = Depends(deps.require_permissions(["user:write"]))
+) -> Any:
+    """
+    Force refresh user permissions (useful after role changes)
+    """
+    user = crud_user.refresh_user_permissions(db, user_id)
+    if not user:
+        raise HTTPException(
+            status_code=404,
+            detail="The user with this id does not exist in the system",
+        )
+
+    return {
+        "message": "User permissions refreshed successfully",
+        "user_id": user.id,
+        "role_name": user.role.name if user.role else None,
+        "permissions": user.role.permissions if user.role else []
+    }
+
 @router.get("/role/{role_name}", response_model=PaginatedResponse[UserSchema])
 def read_users_by_role(
     *,
@@ -455,18 +585,15 @@ async def upload_user_avatar(
     request: Request,
     db: Session = Depends(get_db),
     user_id: str,
-    avatar_file: Optional[UploadFile] = File(None),
-    avatar_url: Optional[str] = Form(None),
+    user_profile: Optional[UploadFile] = File(None),
     current_user: User = Depends(deps.require_permissions(["user:write"]))
 ) -> Any:
     """
     Upload or update user profile picture
 
     You can provide a profile picture in two ways:
-    1. Upload a file (avatar_file): PNG/JPEG only, max 2MB
-    2. Provide an external URL (avatar_url): Must be a valid image URL
-
-    Cannot provide both file and URL - choose one option.
+    1. Upload a file (user_profile): PNG/JPEG only, max 2MB
+    If no file is uploaded, default.png will be used.
     """
     user = crud_user.get(db, id=user_id)
     if not user:
@@ -476,18 +603,17 @@ async def upload_user_avatar(
         )
 
     # Remove old avatar if it's a local file
-    if user.avatar and user.avatar.startswith('/public/user-profile/'):
-        delete_profile_image(user.avatar)
+    if user.user_profile and user.user_profile.startswith('/public/user-profile/'):
+        delete_profile_image(user.user_profile)
 
     # Process new profile picture (uses default if none provided)
     avatar_path = await process_profile_picture(
-        file=avatar_file,
-        external_url=avatar_url,
+        file=user_profile,
         use_default=True
     )
 
     # Update user with new avatar
-    user = crud_user.update(db, db_obj=user, obj_in={"avatar": avatar_path})
+    user = crud_user.update(db, db_obj=user, obj_in={"user_profile": avatar_path})
 
     # Log avatar update
     audit_log = AuditLogCreate(
@@ -521,11 +647,11 @@ def remove_user_avatar(
         )
 
     # Remove avatar file if it's a local file (but not if it's the default)
-    if user.avatar and user.avatar.startswith('/public/user-profile/') and user.avatar != '/public/user-profile/default.png':
-        delete_profile_image(user.avatar)
+    if user.user_profile and user.user_profile.startswith('/public/user-profile/') and user.user_profile != '/public/user-profile/default.png':
+        delete_profile_image(user.user_profile)
 
     # Update user to use default avatar
-    user = crud_user.update(db, db_obj=user, obj_in={"avatar": "/public/user-profile/default.png"})
+    user = crud_user.update(db, db_obj=user, obj_in={"user_profile": "/public/user-profile/default.png"})
 
     # Log avatar removal
     audit_log = AuditLogCreate(
@@ -589,18 +715,15 @@ async def upload_user_avatar(
     request: Request,
     db: Session = Depends(get_db),
     user_id: str,
-    avatar_file: Optional[UploadFile] = File(None),
-    avatar_url: Optional[str] = Form(None),
+    user_profile: Optional[UploadFile] = File(None),
     current_user: User = Depends(deps.require_permissions(["user:write"]))
 ) -> Any:
     """
     Upload or update user profile picture
 
     You can provide a profile picture in two ways:
-    1. Upload a file (avatar_file): PNG/JPEG only, max 2MB
-    2. Provide an external URL (avatar_url): Must be a valid image URL
-
-    Cannot provide both file and URL - choose one option.
+    1. Upload a file (user_profile): PNG/JPEG only, max 2MB
+    If no file is uploaded, default.png will be used.
     """
     user = crud_user.get(db, id=user_id)
     if not user:
@@ -610,18 +733,17 @@ async def upload_user_avatar(
         )
 
     # Remove old avatar if it's a local file
-    if user.avatar and user.avatar.startswith('/public/user-profile/'):
-        delete_profile_image(user.avatar)
+    if user.user_profile and user.user_profile.startswith('/public/user-profile/'):
+        delete_profile_image(user.user_profile)
 
     # Process new profile picture (uses default if none provided)
     avatar_path = await process_profile_picture(
-        file=avatar_file,
-        external_url=avatar_url,
+        file=user_profile,
         use_default=True
     )
 
     # Update user with new avatar
-    user = crud_user.update(db, db_obj=user, obj_in={"avatar": avatar_path})
+    user = crud_user.update(db, db_obj=user, obj_in={"user_profile": avatar_path})
 
     # Log avatar update
     audit_log = AuditLogCreate(
@@ -655,11 +777,11 @@ def remove_user_avatar(
         )
 
     # Remove avatar file if it's a local file (but not if it's the default)
-    if user.avatar and user.avatar.startswith('/public/user-profile/') and user.avatar != '/public/user-profile/default.png':
-        delete_profile_image(user.avatar)
+    if user.user_profile and user.user_profile.startswith('/public/user-profile/') and user.user_profile != '/public/user-profile/default.png':
+        delete_profile_image(user.user_profile)
 
     # Update user to use default avatar
-    user = crud_user.update(db, db_obj=user, obj_in={"avatar": "/public/user-profile/default.png"})
+    user = crud_user.update(db, db_obj=user, obj_in={"user_profile": "/public/user-profile/default.png"})
 
     # Log avatar removal
     audit_log = AuditLogCreate(
@@ -719,18 +841,15 @@ async def upload_user_avatar(
     request: Request,
     db: Session = Depends(get_db),
     user_id: str,
-    avatar_file: Optional[UploadFile] = File(None),
-    avatar_url: Optional[str] = Form(None),
+    user_profile: Optional[UploadFile] = File(None),
     current_user: User = Depends(deps.require_permissions(["user:write"]))
 ) -> Any:
     """
     Upload or update user profile picture
 
     You can provide a profile picture in two ways:
-    1. Upload a file (avatar_file): PNG/JPEG only, max 2MB
-    2. Provide an external URL (avatar_url): Must be a valid image URL
-
-    Cannot provide both file and URL - choose one option.
+    1. Upload a file (user_profile): PNG/JPEG only, max 2MB
+    If no file is uploaded, default.png will be used.
     """
     user = crud_user.get(db, id=user_id)
     if not user:
@@ -740,18 +859,17 @@ async def upload_user_avatar(
         )
 
     # Remove old avatar if it's a local file
-    if user.avatar and user.avatar.startswith('/public/user-profile/'):
-        delete_profile_image(user.avatar)
+    if user.user_profile and user.user_profile.startswith('/public/user-profile/'):
+        delete_profile_image(user.user_profile)
 
     # Process new profile picture (uses default if none provided)
     avatar_path = await process_profile_picture(
-        file=avatar_file,
-        external_url=avatar_url,
+        file=user_profile,
         use_default=True
     )
 
     # Update user with new avatar
-    user = crud_user.update(db, db_obj=user, obj_in={"avatar": avatar_path})
+    user = crud_user.update(db, db_obj=user, obj_in={"user_profile": avatar_path})
 
     # Log avatar update
     audit_log = AuditLogCreate(
@@ -785,11 +903,11 @@ def remove_user_avatar(
         )
 
     # Remove avatar file if it's a local file (but not if it's the default)
-    if user.avatar and user.avatar.startswith('/public/user-profile/') and user.avatar != '/public/user-profile/default.png':
-        delete_profile_image(user.avatar)
+    if user.user_profile and user.user_profile.startswith('/public/user-profile/') and user.user_profile != '/public/user-profile/default.png':
+        delete_profile_image(user.user_profile)
 
     # Update user to use default avatar
-    user = crud_user.update(db, db_obj=user, obj_in={"avatar": "/public/user-profile/default.png"})
+    user = crud_user.update(db, db_obj=user, obj_in={"user_profile": "/public/user-profile/default.png"})
 
     # Log avatar removal
     audit_log = AuditLogCreate(
@@ -849,18 +967,15 @@ async def upload_user_avatar(
     request: Request,
     db: Session = Depends(get_db),
     user_id: str,
-    avatar_file: Optional[UploadFile] = File(None),
-    avatar_url: Optional[str] = Form(None),
+    user_profile: Optional[UploadFile] = File(None),
     current_user: User = Depends(deps.require_permissions(["user:write"]))
 ) -> Any:
     """
     Upload or update user profile picture
 
     You can provide a profile picture in two ways:
-    1. Upload a file (avatar_file): PNG/JPEG only, max 2MB
-    2. Provide an external URL (avatar_url): Must be a valid image URL
-
-    Cannot provide both file and URL - choose one option.
+    1. Upload a file (user_profile): PNG/JPEG only, max 2MB
+    If no file is uploaded, default.png will be used.
     """
     user = crud_user.get(db, id=user_id)
     if not user:
@@ -870,18 +985,17 @@ async def upload_user_avatar(
         )
 
     # Remove old avatar if it's a local file
-    if user.avatar and user.avatar.startswith('/public/user-profile/'):
-        delete_profile_image(user.avatar)
+    if user.user_profile and user.user_profile.startswith('/public/user-profile/'):
+        delete_profile_image(user.user_profile)
 
     # Process new profile picture (uses default if none provided)
     avatar_path = await process_profile_picture(
-        file=avatar_file,
-        external_url=avatar_url,
+        file=user_profile,
         use_default=True
     )
 
     # Update user with new avatar
-    user = crud_user.update(db, db_obj=user, obj_in={"avatar": avatar_path})
+    user = crud_user.update(db, db_obj=user, obj_in={"user_profile": avatar_path})
 
     # Log avatar update
     audit_log = AuditLogCreate(
@@ -915,11 +1029,11 @@ def remove_user_avatar(
         )
 
     # Remove avatar file if it's a local file (but not if it's the default)
-    if user.avatar and user.avatar.startswith('/public/user-profile/') and user.avatar != '/public/user-profile/default.png':
-        delete_profile_image(user.avatar)
+    if user.user_profile and user.user_profile.startswith('/public/user-profile/') and user.user_profile != '/public/user-profile/default.png':
+        delete_profile_image(user.user_profile)
 
     # Update user to use default avatar
-    user = crud_user.update(db, db_obj=user, obj_in={"avatar": "/public/user-profile/default.png"})
+    user = crud_user.update(db, db_obj=user, obj_in={"user_profile": "/public/user-profile/default.png"})
 
     # Log avatar removal
     audit_log = AuditLogCreate(

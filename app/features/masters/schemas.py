@@ -75,6 +75,20 @@ class DepartmentResponse(DepartmentBase):
     class Config:
         from_attributes = True
 
+class IndustryBase(BaseModel):
+    name: str
+    description: Optional[str] = None
+    is_active: bool = True
+    sort_order: int = 0
+
+class IndustryResponse(IndustryBase):
+    id: str
+    created_at: datetime
+    updated_at: Optional[datetime] = None
+
+    class Config:
+        from_attributes = True
+
 class ProjectMastersResponse(BaseModel):
     methodologies: List[ProjectMethodologyResponse]
     types: List[ProjectTypeResponse]

@@ -32,4 +32,3 @@ class Project(Base):
     stories = relationship("Story", back_populates="project")
     sprints = relationship("Sprint", back_populates="project")
     epics = relationship("Epic", back_populates="project")
-    backlog_items = relationship("Backlog", back_populates="project")

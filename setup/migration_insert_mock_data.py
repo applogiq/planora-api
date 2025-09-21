@@ -24,14 +24,14 @@ from app.db.database import SessionLocal, engine
 from app.db.database import Base
 
 # Import all models in correct order to avoid circular import issues
-from app.features.masters.models import ProjectMethodology, ProjectType, ProjectStatus, Priority
+from app.features.masters.models import ProjectMethodology, ProjectType, ProjectStatus, Priority, Department, Industry
+from app.features.customers.models import Customer
 from app.features.roles.models import Role
 from app.features.users.models import User
 from app.features.projects.models import Project
 from app.features.epics.models import Epic
 from app.features.sprints.models import Sprint
 from app.features.stories.models import Story
-from app.features.backlog.models import Backlog
 from app.features.audit_logs.models import AuditLog
 
 def load_module_from_path(module_name, file_path):
@@ -65,6 +65,17 @@ def execute_mock_data_scripts():
             print(f"  ❌ Error inserting master data: {str(e)}")
         total_scripts += 1
 
+        # Execute customer data
+        print(f"\n🔄 Executing customer data insertion...")
+        try:
+            from insert_customer_data import insert_customer_data
+            insert_customer_data()
+            print(f"  ✅ Customer data inserted successfully")
+            successful_scripts += 1
+        except Exception as e:
+            print(f"  ❌ Error inserting customer data: {str(e)}")
+        total_scripts += 1
+
         # Execute user data
         print(f"\n🔄 Executing user data insertion...")
         try:
@@ -87,16 +98,6 @@ def execute_mock_data_scripts():
             print(f"  ❌ Error inserting project data: {str(e)}")
         total_scripts += 1
 
-        # Execute backlog data
-        print(f"\n🔄 Executing backlog data insertion...")
-        try:
-            from insert_backlog_data import create_backlog_tables_and_insert_data
-            create_backlog_tables_and_insert_data()
-            print(f"  ✅ Backlog data inserted successfully")
-            successful_scripts += 1
-        except Exception as e:
-            print(f"  ❌ Error inserting backlog data: {str(e)}")
-        total_scripts += 1
 
         return successful_scripts, total_scripts
 
@@ -117,13 +118,15 @@ def get_table_counts():
                 "tbl_master_project_status",
                 "tbl_master_project_type",
                 "tbl_master_project_methodology",
+                "tbl_master_department",
+                "tbl_master_industry",
+                "tbl_customers",
                 "tbl_roles",
                 "tbl_users",
                 "tbl_projects",
                 "tbl_project_epics",
                 "tbl_project_sprints",
                 "tbl_project_stories",
-                "tbl_project_backlog",
                 "tbl_audit_logs"
             ]
 
@@ -147,11 +150,12 @@ def main():
     print("📥 PLANORA API - INSERT ALL MOCK DATA MIGRATION")
     print("=" * 80)
     print("This script will insert comprehensive mock data:")
-    print("  1. Master data (priorities, statuses, types, methodologies)")
-    print("  2. Users and roles (minimum 25 users)")
-    print("  3. Projects data (minimum 25 projects)")
-    print("  4. Epics, sprints, tasks, and backlog items")
-    print("  5. Audit logs for tracking")
+    print("  1. Master data (priorities, statuses, types, methodologies, departments, industries)")
+    print("  2. Customer data (diverse customer profiles)")
+    print("  3. Users and roles (minimum 25 users)")
+    print("  4. Projects data (minimum 25 projects)")
+    print("  5. Epics, sprints, tasks, and backlog items")
+    print("  6. Audit logs for tracking")
     print("\n" + "=" * 80)
 
     # Get initial table counts

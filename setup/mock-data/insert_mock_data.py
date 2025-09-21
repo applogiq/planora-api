@@ -3,7 +3,7 @@
 Comprehensive Mock Data Setup Script for Planora API
 This script coordinates the insertion of all existing mock data:
 - Users, Roles, and Audit Logs
-- Projects, Epics, Sprints, Tasks, and Backlog
+- Projects, Epics, Sprints, Tasks
 - Master data (Priorities, Statuses, Types, Methodologies)
 """
 
@@ -35,7 +35,6 @@ def create_tables_and_insert_data():
     print("  4. Epics (10 comprehensive epics)")
     print("  5. Sprints (6 sprints with different statuses)")
     print("  6. Tasks (30 tasks across different statuses)")
-    print("  7. Backlog Items (13 diverse backlog items)")
     print("\n" + "=" * 80)
 
     try:
@@ -60,15 +59,6 @@ def create_tables_and_insert_data():
             create_all_project_tables_and_insert_data()
         except Exception as e:
             print(f"[WARNING] Project data setup encountered issues: {e}")
-            print("Continuing with backlog data setup...")
-
-        # Import and run backlog data setup
-        print("\n🔄 STEP 3: Setting up Additional Backlog Items...")
-        try:
-            from insert_backlog_data import create_backlog_tables_and_insert_data
-            create_backlog_tables_and_insert_data()
-        except Exception as e:
-            print(f"[WARNING] Backlog data setup encountered issues: {e}")
             print("Mock data setup completed with some warnings...")
 
         # Final summary
@@ -85,7 +75,6 @@ def create_tables_and_insert_data():
             from app.features.stories.models import Story
             from app.features.sprints.models import Sprint
             from app.features.epics.models import Epic
-            from app.features.backlog.models import Backlog
             from app.features.audit_logs.models import AuditLog
 
             user_count = db.query(User).count()
@@ -94,7 +83,6 @@ def create_tables_and_insert_data():
             task_count = db.query(Task).count()
             sprint_count = db.query(Sprint).count()
             epic_count = db.query(Epic).count()
-            backlog_count = db.query(Backlog).count()
             audit_count = db.query(AuditLog).count()
 
             print(f"\n📊 FINAL DATABASE SUMMARY:")
@@ -104,7 +92,6 @@ def create_tables_and_insert_data():
             print(f"   • {epic_count} Epics")
             print(f"   • {sprint_count} Sprints")
             print(f"   • {task_count} Tasks")
-            print(f"   • {backlog_count} Backlog Items")
             print(f"   • {audit_count} Audit Log Entries")
 
         except Exception as e:
@@ -126,7 +113,6 @@ def create_tables_and_insert_data():
         print("   • Tasks: /api/v1/tasks/")
         print("   • Sprints: /api/v1/sprints/")
         print("   • Epics: /api/v1/epics/")
-        print("   • Backlog: /api/v1/backlog/")
         print("   • Audit Logs: /api/v1/audit-logs/")
         print("   • Masters: /api/v1/masters/")
         print("\n📊 DASHBOARD FEATURES:")
@@ -142,7 +128,6 @@ def create_tables_and_insert_data():
         print("You can also run individual scripts:")
         print("  • python setup/insert_user_data.py")
         print("  • python setup/insert_all_project_data.py")
-        print("  • python setup/insert_backlog_data.py")
         print("=" * 80)
 
 if __name__ == "__main__":

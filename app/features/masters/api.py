@@ -83,3 +83,14 @@ def get_departments(skip: int = 0, limit: int = 100, db: Session = Depends(get_d
     """
     departments = crud.get_departments(db, skip=skip, limit=limit)
     return [schemas.DepartmentResponse.from_orm(department) for department in departments]
+
+@router.get("/industry", response_model=List[schemas.IndustryResponse], summary="Get Industries")
+def get_industries(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
+    """
+    Get all active industries.
+
+    - **skip**: Number of records to skip (for pagination)
+    - **limit**: Maximum number of records to return
+    """
+    industries = crud.get_industries(db, skip=skip, limit=limit)
+    return [schemas.IndustryResponse.from_orm(industry) for industry in industries]
