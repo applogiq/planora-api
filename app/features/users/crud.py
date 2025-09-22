@@ -290,6 +290,73 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
         """Force refresh user with latest role and permissions"""
         return db.query(User).options(joinedload(User.role)).filter(User.id == user_id).first()
 
+    def get_team_members(
+        self,
+        db: Session,
+        *,
+        page: int = 1,
+        per_page: int = 20,
+        sort_by: Optional[str] = None,
+        sort_order: str = "asc",
+        search: Optional[str] = None,
+        is_active: Optional[bool] = True,
+        department: Optional[str] = None
+    ) -> tuple[List[User], int]:
+        """
+        Get team members (excludes admin, super admin, and project manager roles)
+
+        Team members are users who are not in management or admin roles.
+        Excludes: role_admin, role_super_admin, role_project_manager
+        """
+        # Roles to exclude from team members
+        excluded_role_ids = ["role_admin", "role_super_admin", "role_project_manager"]
+
+        query = db.query(User).options(joinedload(User.role))
+
+        # Exclude management and admin roles
+        query = query.filter(~User.role_id.in_(excluded_role_ids))
+
+        # Apply filters
+        filters = []
+
+        # Search filter (name and email)
+        if search:
+            search_term = f"%{search.lower()}%"
+            search_filters = [
+                func.lower(User.name).contains(search_term),
+                func.lower(User.email).contains(search_term)
+            ]
+            # Split search term to handle first name, last name search
+            search_parts = search.lower().split()
+            if len(search_parts) > 1:
+                # Search for "first last" in name field
+                for part in search_parts:
+                    search_filters.append(func.lower(User.name).contains(f"%{part}%"))
+
+            filters.append(or_(*search_filters))
+
+        # Status filter
+        if is_active is not None:
+            filters.append(User.is_active == is_active)
+
+        # Department filter
+        if department:
+            filters.append(func.lower(User.department).contains(department.lower()))
+
+        # Apply all filters
+        if filters:
+            query = query.filter(and_(*filters))
+
+        # Apply pagination and sorting
+        return paginate_query(
+            query=query,
+            page=page,
+            per_page=per_page,
+            sort_by=sort_by,
+            sort_order=sort_order,
+            model_class=User
+        )
+
 crud_user = CRUDUser(User)
 
 # Export for backward compatibility

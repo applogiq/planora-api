@@ -29,3 +29,9 @@ class User(Base):
     managed_projects = relationship("Project", back_populates="team_lead")
     managed_sprints = relationship("Sprint", back_populates="scrum_master")
     assigned_epics = relationship("Epic", back_populates="assignee")
+
+    # File relationships
+    uploaded_files = relationship("File", back_populates="uploaded_by", foreign_keys="File.uploaded_by_id")
+    deleted_files = relationship("File", back_populates="deleted_by", foreign_keys="File.deleted_by_id")
+    created_folders = relationship("FileFolder", back_populates="created_by", foreign_keys="FileFolder.created_by_id")
+    deleted_folders = relationship("FileFolder", back_populates="deleted_by", foreign_keys="FileFolder.deleted_by_id")

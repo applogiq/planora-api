@@ -382,6 +382,51 @@ async def update_user(
 
     return user
 
+@router.get("/team-members/", response_model=PaginatedResponse[UserSchema])
+def read_team_members(
+    *,
+    db: Session = Depends(get_db),
+    page: int = Query(default=1, ge=1, description="Page number"),
+    per_page: int = Query(default=20, ge=1, le=100, description="Items per page"),
+    sort_by: Optional[str] = Query(default="created_at", description="Field to sort by"),
+    sort_order: str = Query(default="desc", pattern="^(asc|desc)$", description="Sort order"),
+    search: Optional[str] = Query(default=None, description="Search in name and email"),
+    is_active: Optional[bool] = Query(default=True, description="Filter by active status"),
+    department: Optional[str] = Query(default=None, description="Filter by department"),
+    current_user: User = Depends(deps.require_permissions(["user:read"]))
+) -> Any:
+    """
+    Get team members (excludes admin, super admin, and project manager roles)
+
+    Team members are users who are not in management or admin roles.
+    Excludes users with: role_admin, role_super_admin, role_project_manager
+
+    **Supported sort fields:** id, name, email, created_at, updated_at, department, is_active
+
+    **Search:** Searches in user name and email fields. Supports partial matches and split name search.
+
+    **Filters:**
+    - is_active: Filter by active status (true/false)
+    - department: Filter by department (case-insensitive, partial match)
+    """
+    users, total = crud_user.get_team_members(
+        db=db,
+        page=page,
+        per_page=per_page,
+        sort_by=sort_by,
+        sort_order=sort_order,
+        search=search,
+        is_active=is_active,
+        department=department
+    )
+
+    return PaginatedResponse.create(
+        items=users,
+        total=total,
+        page=page,
+        per_page=per_page
+    )
+
 @router.get("/{user_id}", response_model=UserSchema)
 def read_user(
     *,
@@ -960,6 +1005,7 @@ def read_project_members(
         page=page,
         per_page=per_page
     )
+
 
 @router.post("/{user_id}/upload-avatar", response_model=UserSchema)
 async def upload_user_avatar(

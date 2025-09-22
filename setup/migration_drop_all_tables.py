@@ -31,14 +31,15 @@ def drop_all_tables():
     # Define tables in drop order (reverse dependency order)
     tables_to_drop = [
         "tbl_audit_logs",
+        "tbl_customers",
         "tbl_project_stories",
-        "tbl_project_tasks",
         "tbl_project_sprints",
         "tbl_project_epics",
         "tbl_projects",
         "tbl_users",
         "tbl_roles",
         "tbl_master_department",
+        "tbl_master_industry",
         "tbl_master_project_methodology",
         "tbl_master_project_type",
         "tbl_master_project_status",
