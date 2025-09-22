@@ -89,8 +89,24 @@ class IndustryResponse(IndustryBase):
     class Config:
         from_attributes = True
 
+class TaskStatusBase(BaseModel):
+    name: str
+    description: Optional[str] = None
+    color: Optional[str] = None
+    is_active: bool = True
+    sort_order: int = 0
+
+class TaskStatusResponse(TaskStatusBase):
+    id: str
+    created_at: datetime
+    updated_at: Optional[datetime] = None
+
+    class Config:
+        from_attributes = True
+
 class ProjectMastersResponse(BaseModel):
     methodologies: List[ProjectMethodologyResponse]
     types: List[ProjectTypeResponse]
     statuses: List[ProjectStatusResponse]
     priorities: List[PriorityResponse]
+    task_status: List[TaskStatusResponse]

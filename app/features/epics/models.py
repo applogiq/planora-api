@@ -23,8 +23,8 @@ class Epic(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
 
-    # Relationships
-    project = relationship("Project", back_populates="epics")
-    assignee = relationship("User", back_populates="assigned_epics")
-    stories = relationship("Story", back_populates="epic", foreign_keys="Story.epic_id")
+    # Relationships - temporarily disabled due to import issues
+    # project = relationship("Project")
+    # assignee = relationship("User")
+    # stories = relationship("Story")
   

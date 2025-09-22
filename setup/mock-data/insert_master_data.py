@@ -4,7 +4,7 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from sqlalchemy.orm import Session
 from app.db.database import SessionLocal, engine
-from app.features.masters.models import ProjectMethodology, ProjectType, ProjectStatus, Priority, Department, Industry
+from app.features.masters.models import ProjectMethodology, ProjectType, ProjectStatus, Priority, Department, Industry, TaskStatus
 from app.db.database import Base
 import uuid
 
@@ -40,6 +40,10 @@ def insert_master_data():
         # Insert Industries
         print("Inserting industries...")
         insert_industries(db)
+
+        # Insert Task Statuses
+        print("Inserting task statuses...")
+        insert_task_statuses(db)
 
         print("[SUCCESS] All master data inserted successfully!")
 
@@ -588,6 +592,53 @@ def insert_industries(db: Session):
 
     db.commit()
     print(f"[SUCCESS] Inserted {len(industries_data)} industries")
+
+def insert_task_statuses(db: Session):
+    """Insert task status master data"""
+    statuses_data = [
+        {
+            "id": str(uuid.uuid4()),
+            "name": "Active",
+            "description": "Task is Active",
+            "color": "#28A745",
+            "is_active": True,
+            "sort_order": 1
+        },
+        {
+            "id": str(uuid.uuid4()),
+            "name": "In Progress",
+            "description": "Task is In Progress",
+            "color": "#17A2B8",
+            "is_active": True,
+            "sort_order": 2
+        },
+        {
+            "id": str(uuid.uuid4()),
+            "name": "On Hold",
+            "description": "Task is temporarily paused",
+            "color": "#FFC107",
+            "is_active": True,
+            "sort_order": 3
+        },
+        {
+            "id": str(uuid.uuid4()),
+            "name": "Completed",
+            "description": "Task has been completed successfully",
+            "color": "#007BFF",
+            "is_active": True,
+            "sort_order": 4
+        }
+    ]
+
+    for status_data in statuses_data:
+        # Check if task status already exists
+        existing = db.query(TaskStatus).filter(TaskStatus.name == status_data["name"]).first()
+        if not existing:
+            db_status = TaskStatus(**status_data)
+            db.add(db_status)
+
+    db.commit()
+    print(f"[SUCCESS] Inserted {len(statuses_data)} task statuses")
 
 if __name__ == "__main__":
     insert_master_data()

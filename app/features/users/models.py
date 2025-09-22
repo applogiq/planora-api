@@ -24,14 +24,16 @@ class User(Base):
     # Relationships
     role = relationship("Role", back_populates="users")
     audit_logs = relationship("AuditLog", back_populates="user")
-    assigned_stories = relationship("Story", back_populates="assignee", foreign_keys="Story.assignee_id")
-    reported_stories = relationship("Story", back_populates="reporter", foreign_keys="Story.reporter_id")
-    managed_projects = relationship("Project", back_populates="team_lead")
-    managed_sprints = relationship("Sprint", back_populates="scrum_master")
-    assigned_epics = relationship("Epic", back_populates="assignee")
+    # Temporarily disable relationships that cause import issues
+    # These relationships reference foreign keys in other tables, so we specify which foreign key to use
+    # assigned_stories = relationship("Story", back_populates="assignee", foreign_keys="[Story.assignee_id]")
+    # reported_stories = relationship("Story", back_populates="reporter", foreign_keys="[Story.reporter_id]")
+    # managed_projects = relationship("Project", back_populates="team_lead")
+    # managed_sprints = relationship("Sprint", back_populates="scrum_master")  # Temporarily disabled due to import issues
+    # assigned_epics = relationship("Epic", back_populates="assignee")
 
-    # File relationships
-    uploaded_files = relationship("File", back_populates="uploaded_by", foreign_keys="File.uploaded_by_id")
-    deleted_files = relationship("File", back_populates="deleted_by", foreign_keys="File.deleted_by_id")
-    created_folders = relationship("FileFolder", back_populates="created_by", foreign_keys="FileFolder.created_by_id")
-    deleted_folders = relationship("FileFolder", back_populates="deleted_by", foreign_keys="FileFolder.deleted_by_id")
+    # File relationships - temporarily disabled due to import issues
+    # uploaded_files = relationship("File", back_populates="uploaded_by", foreign_keys="[File.uploaded_by_id]")
+    # deleted_files = relationship("File", back_populates="deleted_by", foreign_keys="[File.deleted_by_id]")
+    # created_folders = relationship("FileFolder", back_populates="created_by", foreign_keys="[FileFolder.created_by_id]")
+    # deleted_folders = relationship("FileFolder", back_populates="deleted_by", foreign_keys="[FileFolder.deleted_by_id]")

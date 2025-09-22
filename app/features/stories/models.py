@@ -1,4 +1,4 @@
-from sqlalchemy import Boolean, Column, String, DateTime, Text, Integer, ForeignKey, ARRAY
+from sqlalchemy import Boolean, Column, String, DateTime, Text, Integer, ForeignKey, ARRAY, JSON, Date
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 from app.db.database import Base
@@ -26,12 +26,23 @@ class Story(Base):
     effort = Column(String)
     labels = Column(ARRAY(String))
     acceptance_criteria = Column(ARRAY(String))
+
+    # New fields for complete task management
+    subtasks = Column(JSON)  # Array of subtask objects
+    comments = Column(JSON)  # Array of comment objects
+    attached_files = Column(JSON)  # Array of file attachment objects
+    progress = Column(Integer, default=0)  # Progress percentage (0-100)
+    start_date = Column(Date)
+    end_date = Column(Date)
+    tags = Column(ARRAY(String))
+    activity = Column(JSON)  # Array of activity log objects
+
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
 
-    # Relationships
-    assignee = relationship("User", back_populates="assigned_stories", foreign_keys=[assignee_id])
-    reporter = relationship("User", back_populates="reported_stories", foreign_keys=[reporter_id])
-    project = relationship("Project", back_populates="stories")
-    epic = relationship("Epic", back_populates="stories", foreign_keys=[epic_id])
-    sprint_obj = relationship("Sprint", back_populates="stories", foreign_keys=[sprint_id])
+    # Relationships - temporarily disabled due to import issues
+    # assignee = relationship("User", foreign_keys=[assignee_id])
+    # reporter = relationship("User", foreign_keys=[reporter_id])
+    # project = relationship("Project")
+    # epic = relationship("Epic", foreign_keys=[epic_id])
+    # sprint_obj = relationship("Sprint", foreign_keys=[sprint_id])

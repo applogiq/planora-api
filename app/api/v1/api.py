@@ -8,6 +8,7 @@ def get_api_router() -> APIRouter:
     from app.features.stories.api import router as stories_router
     from app.features.sprints.api import router as sprints_router
     from app.features.epics.api import router as epics_router
+    from app.features.tasks.api import router as tasks_router
     from app.features.auth.api import router as auth_router
     from app.features.audit_logs.api import router as audit_logs_router
     from app.features.notifications.api import router as notifications_router
@@ -27,6 +28,7 @@ def get_api_router() -> APIRouter:
     api_router.include_router(stories_router, prefix="/stories", tags=["Stories"])
     api_router.include_router(sprints_router, prefix="/sprints", tags=["Sprints"])
     api_router.include_router(epics_router, prefix="/epics", tags=["Epics"])
+    api_router.include_router(tasks_router, prefix="/tasks", tags=["Tasks"])
     api_router.include_router(audit_logs_router, prefix="/audit-logs", tags=["Audit-logs"])
     api_router.include_router(dashboard_router, prefix="/dashboard", tags=["Dashboard"])
     api_router.include_router(reports_router, prefix="/reports", tags=["Reports"])

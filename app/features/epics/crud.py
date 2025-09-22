@@ -1,5 +1,5 @@
 from typing import List, Optional, Any
-from sqlalchemy.orm import Session, joinedload
+from sqlalchemy.orm import Session
 from sqlalchemy import and_, or_, func
 from app.core.pagination import paginate_query
 from app.shared.crud import CRUDBase
@@ -22,48 +22,27 @@ class CRUDEpic(CRUDBase[Epic, EpicCreate, EpicUpdate]):
         return db_obj
 
     def get(self, db: Session, id: Any) -> Optional[Epic]:
-        return db.query(Epic).options(
-            joinedload(Epic.project),
-            joinedload(Epic.assignee)
-        ).filter(Epic.id == id).first()
+        return db.query(Epic).filter(Epic.id == id).first()  # Temporarily disabled joinedload
 
     def get_multi(
         self, db: Session, *, skip: int = 0, limit: int = 100
     ) -> List[Epic]:
-        return db.query(Epic).options(
-            joinedload(Epic.project),
-            joinedload(Epic.assignee)
-        ).offset(skip).limit(limit).all()
+        return db.query(Epic).offset(skip).limit(limit).all()  # Temporarily disabled joinedload
 
     def get_by_project(self, db: Session, *, project_id: str) -> List[Epic]:
-        return db.query(Epic).options(
-            joinedload(Epic.project),
-            joinedload(Epic.assignee)
-        ).filter(Epic.project_id == project_id).all()
+        return db.query(Epic).filter(Epic.project_id == project_id).all()
 
     def get_by_status(self, db: Session, *, status: str) -> List[Epic]:
-        return db.query(Epic).options(
-            joinedload(Epic.project),
-            joinedload(Epic.assignee)
-        ).filter(Epic.status == status).all()
+        return db.query(Epic).filter(Epic.status == status).all()
 
     def get_by_priority(self, db: Session, *, priority: str) -> List[Epic]:
-        return db.query(Epic).options(
-            joinedload(Epic.project),
-            joinedload(Epic.assignee)
-        ).filter(Epic.priority == priority).all()
+        return db.query(Epic).filter(Epic.priority == priority).all()
 
     def get_by_assignee(self, db: Session, *, assignee_id: str) -> List[Epic]:
-        return db.query(Epic).options(
-            joinedload(Epic.project),
-            joinedload(Epic.assignee)
-        ).filter(Epic.assignee_id == assignee_id).all()
+        return db.query(Epic).filter(Epic.assignee_id == assignee_id).all()
 
     def get_active_epics(self, db: Session) -> List[Epic]:
-        return db.query(Epic).options(
-            joinedload(Epic.project),
-            joinedload(Epic.assignee)
-        ).filter(Epic.status.in_(["To Do", "In Progress", "Review"])).all()
+        return db.query(Epic).filter(Epic.status.in_(["To Do", "In Progress", "Review"])).all()
 
     def get_epics_with_filters(
         self,
@@ -83,10 +62,7 @@ class CRUDEpic(CRUDBase[Epic, EpicCreate, EpicUpdate]):
         """
         Get epics with advanced filtering, pagination, and sorting
         """
-        query = db.query(Epic).options(
-            joinedload(Epic.project),
-            joinedload(Epic.assignee)
-        )
+        query = db.query(Epic)
 
         # Apply filters
         filters = []

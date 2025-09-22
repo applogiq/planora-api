@@ -24,7 +24,7 @@ class Sprint(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
 
-    # Relationships
-    project = relationship("Project", back_populates="sprints")
-    scrum_master = relationship("User", back_populates="managed_sprints")
-    stories = relationship("Story", back_populates="sprint_obj", foreign_keys="Story.sprint_id")
+    # Relationships - temporarily disabled due to import issues
+    # project = relationship("Project")
+    # scrum_master = relationship("User")
+    # stories = relationship("Story")

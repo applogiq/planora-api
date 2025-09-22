@@ -36,9 +36,9 @@ class File(Base):
     deleted_at = Column(DateTime(timezone=True))
     deleted_by_id = Column(String, ForeignKey("tbl_users.id"))
 
-    # Relationships
-    uploaded_by = relationship("User", back_populates="uploaded_files", foreign_keys=[uploaded_by_id])
-    deleted_by = relationship("User", back_populates="deleted_files", foreign_keys=[deleted_by_id])
+    # Relationships - temporarily disabled due to import issues
+    # uploaded_by = relationship("User", foreign_keys=[uploaded_by_id])
+    # deleted_by = relationship("User", foreign_keys=[deleted_by_id])
 
 class FileFolder(Base):
     __tablename__ = "tbl_file_folders"
@@ -65,10 +65,10 @@ class FileFolder(Base):
     deleted_at = Column(DateTime(timezone=True))
     deleted_by_id = Column(String, ForeignKey("tbl_users.id"))
 
-    # Relationships
-    created_by = relationship("User", back_populates="created_folders", foreign_keys=[created_by_id])
-    deleted_by = relationship("User", back_populates="deleted_folders", foreign_keys=[deleted_by_id])
-    parent_folder = relationship("FileFolder", remote_side=[id])
+    # Relationships - temporarily disabled due to import issues
+    # created_by = relationship("User", foreign_keys=[created_by_id])
+    # deleted_by = relationship("User", foreign_keys=[deleted_by_id])
+    # parent_folder = relationship("FileFolder", remote_side=[id])
 
 class StorageQuota(Base):
     __tablename__ = "tbl_storage_quotas"

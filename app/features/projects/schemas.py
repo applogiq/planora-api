@@ -5,6 +5,17 @@ from datetime import datetime, date
 if TYPE_CHECKING:
     from app.features.users.schemas import User
 
+class TeamMemberDetail(BaseModel):
+    """Detailed team member information for project responses"""
+    id: str
+    name: str
+    department: Optional[str] = None
+    role_id: str
+    role_name: Optional[str] = None
+    user_profile: Optional[str] = None
+
+    model_config = ConfigDict(from_attributes=True)
+
 class ProjectBase(BaseModel):
     name: str
     description: Optional[str] = None
@@ -102,7 +113,8 @@ class ProjectInDB(ProjectBase):
     model_config = ConfigDict(from_attributes=True)
 
 class Project(ProjectInDB):
-    team_lead: Optional["User"] = None
+    team_lead_detail: Optional[TeamMemberDetail] = None
+    team_members_detail: Optional[List[TeamMemberDetail]] = None
 
     model_config = ConfigDict(from_attributes=True)
 

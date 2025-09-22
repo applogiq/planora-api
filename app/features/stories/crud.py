@@ -1,5 +1,5 @@
 from typing import List, Optional, Any
-from sqlalchemy.orm import Session, joinedload
+from sqlalchemy.orm import Session
 from sqlalchemy import and_, or_, func
 from app.core.pagination import paginate_query
 from app.shared.crud import CRUDBase
@@ -8,6 +8,19 @@ from app.features.users.models import User
 from app.features.projects.models import Project
 from app.features.stories.schemas import StoryCreate, StoryUpdate
 import uuid
+import json
+from datetime import datetime, date
+
+def serialize_datetime_for_json(obj):
+    """Helper function to serialize datetime objects in nested data structures"""
+    if isinstance(obj, (datetime, date)):
+        return obj.isoformat()
+    elif isinstance(obj, dict):
+        return {key: serialize_datetime_for_json(value) for key, value in obj.items()}
+    elif isinstance(obj, list):
+        return [serialize_datetime_for_json(item) for item in obj]
+    else:
+        return obj
 
 class CRUDStory(CRUDBase[Story, StoryCreate, StoryUpdate]):
     def get_by_status(self, db: Session, *, status: str) -> List[Story]:
@@ -23,30 +36,47 @@ class CRUDStory(CRUDBase[Story, StoryCreate, StoryUpdate]):
         return db.query(Story).filter(Story.type == story_type).all()
 
     def create(self, db: Session, *, obj_in: StoryCreate) -> Story:
+        obj_data = obj_in.dict()
+
+        # Serialize datetime objects in JSON fields
+        json_fields = ['comments', 'attached_files', 'subtasks', 'activity']
+        for field in json_fields:
+            if field in obj_data and obj_data[field] is not None:
+                obj_data[field] = serialize_datetime_for_json(obj_data[field])
+
         db_obj = Story(
             id=str(uuid.uuid4()),
-            **obj_in.dict()
+            **obj_data
         )
         db.add(db_obj)
         db.commit()
         db.refresh(db_obj)
         return db_obj
 
+    def update(self, db: Session, *, db_obj: Story, obj_in: StoryUpdate) -> Story:
+        obj_data = obj_in.dict(exclude_unset=True)
+
+        # Serialize datetime objects in JSON fields
+        json_fields = ['comments', 'attached_files', 'subtasks', 'activity']
+        for field in json_fields:
+            if field in obj_data and obj_data[field] is not None:
+                obj_data[field] = serialize_datetime_for_json(obj_data[field])
+
+        for field, value in obj_data.items():
+            setattr(db_obj, field, value)
+
+        db.add(db_obj)
+        db.commit()
+        db.refresh(db_obj)
+        return db_obj
+
     def get(self, db: Session, id: Any) -> Optional[Story]:
-        return db.query(Story).options(
-            joinedload(Story.assignee),
-            joinedload(Story.reporter),
-            joinedload(Story.project)
-        ).filter(Story.id == id).first()
+        return db.query(Story).filter(Story.id == id).first()
 
     def get_multi(
         self, db: Session, *, skip: int = 0, limit: int = 100
     ) -> List[Story]:
-        return db.query(Story).options(
-            joinedload(Story.assignee),
-            joinedload(Story.reporter),
-            joinedload(Story.project)
-        ).offset(skip).limit(limit).all()
+        return db.query(Story).offset(skip).limit(limit).all()
 
     def get_stories_with_filters(
         self,
@@ -68,11 +98,7 @@ class CRUDStory(CRUDBase[Story, StoryCreate, StoryUpdate]):
         """
         Get stories with advanced filtering, pagination, and sorting
         """
-        query = db.query(Story).options(
-            joinedload(Story.assignee),
-            joinedload(Story.reporter),
-            joinedload(Story.project)
-        )
+        query = db.query(Story)
 
         # Apply filters
         filters = []
@@ -187,6 +213,24 @@ class CRUDStory(CRUDBase[Story, StoryCreate, StoryUpdate]):
             sort_order=sort_order,
             story_type=story_type
         )
+
+    def get_by_type(self, db: Session, *, story_type: str, skip: int = 0, limit: int = 100) -> List[Story]:
+        """Get stories by type with skip/limit pagination"""
+        return db.query(Story).filter(Story.type == story_type).offset(skip).limit(limit).all()
+
+    def get_by_project_and_type(self, db: Session, *, project_id: str, story_type: str, skip: int = 0, limit: int = 100) -> List[Story]:
+        """Get stories by project and type with skip/limit pagination"""
+        return db.query(Story).filter(
+            and_(Story.project_id == project_id, Story.type == story_type)
+        ).offset(skip).limit(limit).all()
+
+    def remove(self, db: Session, *, id: str) -> Story:
+        """Remove story by ID"""
+        obj = db.query(Story).filter(Story.id == id).first()
+        if obj:
+            db.delete(obj)
+            db.commit()
+        return obj
 
 crud_story = CRUDStory(Story)
 

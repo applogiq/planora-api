@@ -1,5 +1,5 @@
 from typing import List, Optional, Any
-from sqlalchemy.orm import Session, joinedload
+from sqlalchemy.orm import Session
 from sqlalchemy import and_, or_, func
 from app.core.pagination import paginate_query
 from app.shared.crud import CRUDBase
@@ -29,12 +29,12 @@ class CRUDProject(CRUDBase[Project, ProjectCreate, ProjectUpdate]):
         return db_obj
 
     def get(self, db: Session, id: Any) -> Optional[Project]:
-        return db.query(Project).options(joinedload(Project.team_lead)).filter(Project.id == id).first()
+        return db.query(Project).filter(Project.id == id).first()  # Temporarily disabled joinedload
 
     def get_multi(
         self, db: Session, *, skip: int = 0, limit: int = 100
     ) -> List[Project]:
-        return db.query(Project).options(joinedload(Project.team_lead)).offset(skip).limit(limit).all()
+        return db.query(Project).offset(skip).limit(limit).all()  # Temporarily disabled joinedload
 
     def get_projects_with_filters(
         self,
@@ -56,7 +56,7 @@ class CRUDProject(CRUDBase[Project, ProjectCreate, ProjectUpdate]):
         """
         Get projects with advanced filtering, pagination, and sorting
         """
-        query = db.query(Project).options(joinedload(Project.team_lead))
+        query = db.query(Project)  # Temporarily disabled due to relationship issues
 
         # Apply filters
         filters = []

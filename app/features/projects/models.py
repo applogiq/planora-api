@@ -27,8 +27,8 @@ class Project(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
 
-    # Relationships
-    team_lead = relationship("User", back_populates="managed_projects")
-    stories = relationship("Story", back_populates="project")
-    sprints = relationship("Sprint", back_populates="project")
-    epics = relationship("Epic", back_populates="project")
+    # Relationships - temporarily disabled due to import issues
+    # team_lead = relationship("User")
+    # stories = relationship("Story")
+    # sprints = relationship("Sprint")
+    # epics = relationship("Epic")

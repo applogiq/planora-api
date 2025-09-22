@@ -21,7 +21,7 @@ from app.features.files.file_utils import (
 from app.features.files.models import File as FileModel
 from app.features.audit_logs.schemas import AuditLogCreate
 import os
-from pathlib import Path
+from pathlib import Path as PathLib
 
 router = APIRouter()
 
@@ -89,7 +89,7 @@ async def upload_files(
             file_path, unique_filename, file_size = await save_upload_file(upload_file, entity_type, entity_id)
 
             # Determine file category
-            file_extension = Path(upload_file.filename or "").suffix.lower()
+            file_extension = PathLib(upload_file.filename or "").suffix.lower()
             category = get_file_category(file_extension)
 
             # Create file record

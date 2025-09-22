@@ -59,6 +59,15 @@ def create_tables_and_insert_data():
             create_all_project_tables_and_insert_data()
         except Exception as e:
             print(f"[WARNING] Project data setup encountered issues: {e}")
+            print("Continuing with file management data setup...")
+
+        # Import and run file management data setup
+        print("\n🔄 STEP 3: Setting up File Management Data...")
+        try:
+            from insert_file_data import insert_file_management_data
+            insert_file_management_data()
+        except Exception as e:
+            print(f"[WARNING] File management data setup encountered issues: {e}")
             print("Mock data setup completed with some warnings...")
 
         # Final summary
@@ -76,14 +85,18 @@ def create_tables_and_insert_data():
             from app.features.sprints.models import Sprint
             from app.features.epics.models import Epic
             from app.features.audit_logs.models import AuditLog
+            from app.features.files.models import File, FileFolder, StorageQuota
 
             user_count = db.query(User).count()
             role_count = db.query(Role).count()
             project_count = db.query(Project).count()
-            task_count = db.query(Task).count()
+            story_count = db.query(Story).count()
             sprint_count = db.query(Sprint).count()
             epic_count = db.query(Epic).count()
             audit_count = db.query(AuditLog).count()
+            file_count = db.query(File).count()
+            folder_count = db.query(FileFolder).count()
+            quota_count = db.query(StorageQuota).count()
 
             print(f"\n📊 FINAL DATABASE SUMMARY:")
             print(f"   • {role_count} Roles")
@@ -91,7 +104,10 @@ def create_tables_and_insert_data():
             print(f"   • {project_count} Projects")
             print(f"   • {epic_count} Epics")
             print(f"   • {sprint_count} Sprints")
-            print(f"   • {task_count} Tasks")
+            print(f"   • {story_count} Stories")
+            print(f"   • {file_count} Files")
+            print(f"   • {folder_count} File Folders")
+            print(f"   • {quota_count} Storage Quotas")
             print(f"   • {audit_count} Audit Log Entries")
 
         except Exception as e:

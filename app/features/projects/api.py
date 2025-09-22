@@ -11,10 +11,70 @@ from app.features.audit_logs.crud import crud_audit_log
 # from app.crud import crud_project, crud_audit_log
 from app.db.database import get_db
 from app.features.users.models import User
-from app.features.projects.schemas import Project as ProjectSchema, ProjectCreate, ProjectUpdate
+from app.features.projects.schemas import Project as ProjectSchema, ProjectCreate, ProjectUpdate, TeamMemberDetail
 from app.features.audit_logs.schemas import AuditLogCreate
 
 router = APIRouter()
+
+def enrich_project_with_team_details(db: Session, project) -> ProjectSchema:
+    """Enrich project with full team member and team lead details"""
+    project_dict = {
+        "id": project.id,
+        "name": project.name,
+        "description": project.description,
+        "status": project.status,
+        "progress": project.progress,
+        "start_date": project.start_date,
+        "end_date": project.end_date,
+        "budget": project.budget,
+        "spent": project.spent,
+        "customer": project.customer,
+        "customer_id": project.customer_id,
+        "priority": project.priority,
+        "team_lead_id": project.team_lead_id,
+        "team_members": project.team_members,
+        "tags": project.tags,
+        "color": project.color,
+        "methodology": project.methodology,
+        "project_type": project.project_type,
+        "created_at": project.created_at,
+        "updated_at": project.updated_at
+    }
+
+    # Enrich team lead details
+    team_lead_detail = None
+    if project.team_lead_id:
+        team_lead = crud_user.get(db, id=project.team_lead_id)
+        if team_lead:
+            team_lead_detail = TeamMemberDetail(
+                id=team_lead.id,
+                name=team_lead.name,
+                department=team_lead.department,
+                role_id=team_lead.role_id,
+                role_name=team_lead.role.name if team_lead.role else None,
+                user_profile=team_lead.user_profile
+            )
+
+    # Enrich team members details
+    team_members_detail = []
+    if project.team_members:
+        for member_id in project.team_members:
+            member = crud_user.get(db, id=member_id)
+            if member:
+                member_detail = TeamMemberDetail(
+                    id=member.id,
+                    name=member.name,
+                    department=member.department,
+                    role_id=member.role_id,
+                    role_name=member.role.name if member.role else None,
+                    user_profile=member.user_profile
+                )
+                team_members_detail.append(member_detail)
+
+    project_dict["team_lead_detail"] = team_lead_detail
+    project_dict["team_members_detail"] = team_members_detail
+
+    return ProjectSchema(**project_dict)
 
 @router.get("/", response_model=PaginatedResponse[ProjectSchema])
 def read_projects(
@@ -65,8 +125,11 @@ def read_projects(
         project_type=project_type
     )
 
+    # Enrich projects with team member details
+    enriched_projects = [enrich_project_with_team_details(db, project) for project in projects]
+
     return PaginatedResponse.create(
-        items=projects,
+        items=enriched_projects,
         total=total,
         page=page,
         per_page=per_page
@@ -234,7 +297,7 @@ def read_project(
             status_code=404,
             detail="The project with this id does not exist in the system",
         )
-    return project
+    return enrich_project_with_team_details(db, project)
 
 @router.delete("/{project_id}", response_model=ProjectSchema)
 def delete_project(
@@ -276,7 +339,7 @@ def read_projects_by_status(
     current_user: User = Depends(deps.require_permissions(["project:read"]))
 ) -> Any:
     projects = crud_project.get_by_status(db, status=status)
-    return projects
+    return [enrich_project_with_team_details(db, project) for project in projects]
 
 @router.get("/active/list", response_model=List[ProjectSchema])
 def read_active_projects(
@@ -285,7 +348,7 @@ def read_active_projects(
     current_user: User = Depends(deps.require_permissions(["project:read"]))
 ) -> Any:
     projects = crud_project.get_active_projects(db)
-    return projects
+    return [enrich_project_with_team_details(db, project) for project in projects]
 
 @router.get("/lead/{team_lead_id}", response_model=List[ProjectSchema])
 def read_projects_by_team_lead(

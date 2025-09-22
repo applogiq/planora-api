@@ -1,0 +1,68 @@
+RightKids
+Concept: The science of reading. Reading is a life skill and phonetics, and orthography lays a strong foundation for developing reading and spelling skills in children. It is a scientific step-by-step approach with multi-sensory way to teach reading to children.
+It is grade level and can be progressive for pre-school to grade 5. There will be improvement in reading and spelling ability. Children facing difficulty remembering spelling and having difficulty in reading will benefit immensely.
+
+Companies having similar products in US:
+Our Approach | Really Great Reading
+https://www.readingrockets.org/
+https://readinghorizons.com/reading-curriculum/elementary-reading-curriculum/ 
+
+Sample lesson flow: 
+Part 1: Alphabetization: tiles of the letters from A-Z are randomly placed in a box below  (lower half of the screen )and the child has to drag them to their place above arranging them from A to Z in order
+ Part 2: Introduction of the phonemes: of the letters that the child arranges, certain letters (letters which will be covered in this lesson) like a, t,b,s will be highlighted
+The voice over prompts the child to press the letter in a sequence and when the child hits ‘a’  the voice over says a says /a/ as in apple.  Then the child repeats the sentence ‘a’ says /a/ as in apple. The application should be able to record the sound the child makes and should prompt to repeat the sound at least 3 times. 
+All the 4 sounds should be taught in this way.
+Part 3: Reading the words:
+There should be a voice over saying: Now let’s practice reading. When the letter is shown on the screen, say that sound it makes. Continue like that for all the letter and then blend them to read the word. 1st one is done for you:
+On the screen b is shown and the sound /b/ is heard. Then the letter a is shown beside b and the sound /a/ is made. Then the letter t is shown and the sound /t/ is made. Then the sounds /b/ /a/ /t/ are made together with short pause and then the word bat is read. There should be an arrow moving from b to t while the sounds are made to let the child understand that words are read from left to right.
+Once this sample is done, the letter t appears on the screen and the child should say the sound. The application should record the sound and move to the next letter if the sound is correct else it should say try again, for 2 times and even then is the child is not able to say the sound then the system should give the sound and move to the next letter. 
+Like wise the child should be able to read the following words
+Tab
+Tas
+Bas
+Sas
+Sat
+
+Child should get enough encouragement by saying ‘great job’ and getting stars whenever he read the words correctly.
+Part 4: Identifying the letter based on the sound
+Now the instruction should say, now lets see if you will be able to identify the letter based on the sounds. The system should say the sound /t/ and the child should click the letter tile t from the screen which displays all the letters from a to z at the bottom of the screen. The moment the child clicks the letter tile t, it should go the 1st empty space in the top of the screen. If the child clicks some other letter then it should prompt the child to try again. It should give two chances and then get the letter tile ‘t’ to its place. Then the system should make the sound of /a/ then the child should click on the letter tile a’ and it goes to its place beside t. then again the system makes the sound of /b/ then the child clicks on b and the tiles goes to its place beside a. Then the child is prompted to read the word by joining the sounds /t/ /a/ /b/ and then read the word tab.
+Like that 
+The words
+Bas
+Tat
+sab 
+Are practiced.
+Part 5: child is prompted to read a short sentence
+The screen should show a image of the bat in a tab. Screen should show the sentence
+The bat is in the tab.
+The arrow should move from left to right as the child reads. 
+If the child doesn’t read the word correctly then that word should be highlighted and prompted to read again by using phonemes. If he is still not able to read, the system should read the word and encourage the child to read the next word.
+Part 6: System says a sentence and the child should be able to type the sentence.
+The system should say ‘The tab is on the bat” each word is said slowly and there is a gap after each word to allow the child to type the word. If the child types the word wrong then the system should repeat the word and then break it into phonemes and then prompt the child to type. Two chances and still the child is not able to type then the system types that word and moves on. 
+Part 7: Now the system displays a orthographic rule on the screen and repeats the text. 
+The vowels are
+a,e,I,o,u and sometimes y
+The student is prompted to repeat the rule. The child should repeat the sentence twice.
+Then on the screen the letter ‘e’ is shown and asked if it is a vowel or not. Two buttons should show vowel and not a vowel as buttons. The child should click on the vowel button. If he clicks the other button then the rule should be displayed on the screen and the child should repeat the rule after the system says it.
+Part 8: review
+The system should says that “lets revise what we learnt” and say that today we have learnt the sounds made by the letters a, b, and t.
+A says /a/ as in apple,
+B says /b/ as in ball
+T says /t/ as in teddy
+S says /s/ as in sun
+We read some words with these phonemes like bat, tab and others
+We leart to spell these words as well and practiced some reading exercises.
+We also learnt that 
+Vowels are a,e,I,o,u and sometimes y.
+Good job and can’t wait to start the next session. See you soon!
+
+Important points to consider while building software:
+•	This is a grade 1 level sample plan
+•	I want to build a grade 1 – 3 curriculum software in a phased manner.
+•	Each grade will have 30 such lessons
+•	Every grade will have admin login; where teachers can see the performance of the children and reports; student login where students can do the lessons.
+•	It should be a SaaS software with built in AI to recognize the mistakes made by each child and system should suggest practice sessions based on the mistakes made by the child.
+
+
+
+

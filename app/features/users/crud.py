@@ -1,5 +1,5 @@
 from typing import Any, Dict, Optional, Union, List
-from sqlalchemy.orm import Session, joinedload
+from sqlalchemy.orm import Session
 from sqlalchemy import and_, or_, func
 from app.core.security import get_password_hash, verify_password
 from app.core.pagination import paginate_query
@@ -29,7 +29,7 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
         db.refresh(db_obj)
 
         # Load the role relationship to ensure permissions are accessible for new users
-        db_obj = db.query(User).options(joinedload(User.role)).filter(User.id == db_obj.id).first()
+        db_obj = db.query(User).filter(User.id == db_obj.id).first()
         return db_obj
 
     def update(
@@ -60,13 +60,13 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
         # Always refresh the user to get updated role permissions (especially important for role changes)
         db.refresh(updated_user)
         # Load the role relationship to ensure permissions are accessible
-        updated_user = db.query(User).options(joinedload(User.role)).filter(User.id == updated_user.id).first()
+        updated_user = db.query(User).filter(User.id == updated_user.id).first()
 
         # If role changed, ensure the session is properly committed and role is loaded
         if role_changed:
             db.commit()
             # Force a fresh query to ensure we get the latest role data
-            updated_user = db.query(User).options(joinedload(User.role)).filter(User.id == updated_user.id).first()
+            updated_user = db.query(User).filter(User.id == updated_user.id).first()
 
         return updated_user
 
@@ -82,15 +82,15 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
         return user.is_active
 
     def get(self, db: Session, id: Any) -> Optional[User]:
-        return db.query(User).options(joinedload(User.role)).filter(User.id == id).first()
+        return db.query(User).filter(User.id == id).first()
 
     def get_multi(
         self, db: Session, *, skip: int = 0, limit: int = 100
     ) -> List[User]:
-        return db.query(User).options(joinedload(User.role)).offset(skip).limit(limit).all()
+        return db.query(User).offset(skip).limit(limit).all()
 
     def get_by_email(self, db: Session, *, email: str) -> Optional[User]:
-        return db.query(User).options(joinedload(User.role)).filter(User.email == email).first()
+        return db.query(User).filter(User.email == email).first()
 
     def get_users_with_filters(
         self,
@@ -124,7 +124,7 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
         Returns:
             Tuple of (users_list, total_count)
         """
-        query = db.query(User).options(joinedload(User.role))
+        query = db.query(User)
 
         # Apply filters
         filters = []
@@ -254,7 +254,7 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
         is_active: Optional[bool] = True
     ) -> tuple[List[User], int]:
         """Get users by multiple role IDs with pagination"""
-        query = db.query(User).options(joinedload(User.role))
+        query = db.query(User)
 
         # Filter by multiple role IDs
         query = query.filter(User.role_id.in_(role_ids))
@@ -275,20 +275,20 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
 
     def get_users_by_roles(self, db: Session, roles: List[str]) -> List[User]:
         """Get users by role IDs without pagination"""
-        return db.query(User).options(joinedload(User.role)).filter(
+        return db.query(User).filter(
             User.role_id.in_(roles),
             User.is_active == True
         ).all()
 
     def get_active_users(self, db: Session) -> List[User]:
         """Get all active users without pagination"""
-        return db.query(User).options(joinedload(User.role)).filter(
+        return db.query(User).filter(
             User.is_active == True
         ).all()
 
     def refresh_user_permissions(self, db: Session, user_id: str) -> Optional[User]:
         """Force refresh user with latest role and permissions"""
-        return db.query(User).options(joinedload(User.role)).filter(User.id == user_id).first()
+        return db.query(User).filter(User.id == user_id).first()
 
     def get_team_members(
         self,
@@ -311,7 +311,7 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
         # Roles to exclude from team members
         excluded_role_ids = ["role_admin", "role_super_admin", "role_project_manager"]
 
-        query = db.query(User).options(joinedload(User.role))
+        query = db.query(User)
 
         # Exclude management and admin roles
         query = query.filter(~User.role_id.in_(excluded_role_ids))

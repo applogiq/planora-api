@@ -20,6 +20,20 @@ from app.features.audit_logs.schemas import AuditLogCreate
 
 router = APIRouter()
 
+def populate_epic_names(db: Session, epic):
+    """Helper function to populate epic names from foreign keys"""
+    if epic.project_id:
+        project = crud_project.get(db, id=epic.project_id)
+        if project:
+            epic.project_name = project.name
+
+    if epic.assignee_id:
+        assignee = crud_user.get(db, id=epic.assignee_id)
+        if assignee:
+            epic.assignee_name = assignee.name
+
+    return epic
+
 @router.get("/", response_model=PaginatedResponse[EpicSchema])
 def read_epics(
     db: Session = Depends(get_db),
@@ -65,10 +79,7 @@ def read_epics(
 
     # Add computed fields
     for epic in epics:
-        if epic.project:
-            epic.project_name = epic.project.name
-        if epic.assignee:
-            epic.assignee_name = epic.assignee.name
+        populate_epic_names(db, epic)
 
         # Calculate completion percentage
         if epic.total_story_points > 0:
@@ -160,10 +171,7 @@ def create_epic(
 
     # Add computed fields
     epic = crud_epic.get(db, id=epic.id)
-    if epic.project:
-        epic.project_name = epic.project.name
-    if epic.assignee:
-        epic.assignee_name = epic.assignee.name
+    populate_epic_names(db, epic)
 
     # Calculate completion percentage
     if epic.total_story_points > 0:
@@ -243,10 +251,7 @@ def update_epic(
 
     # Add computed fields
     epic = crud_epic.get(db, id=epic.id)
-    if epic.project:
-        epic.project_name = epic.project.name
-    if epic.assignee:
-        epic.assignee_name = epic.assignee.name
+    populate_epic_names(db, epic)
 
     # Calculate completion percentage
     if epic.total_story_points > 0:
@@ -270,10 +275,7 @@ def read_epic(
         )
 
     # Add computed fields
-    if epic.project:
-        epic.project_name = epic.project.name
-    if epic.assignee:
-        epic.assignee_name = epic.assignee.name
+    populate_epic_names(db, epic)
 
     # Calculate completion percentage
     if epic.total_story_points > 0:
@@ -326,10 +328,7 @@ def read_epics_by_status(
 
     # Add computed fields
     for epic in epics:
-        if epic.project:
-            epic.project_name = epic.project.name
-        if epic.assignee:
-            epic.assignee_name = epic.assignee.name
+        populate_epic_names(db, epic)
 
         if epic.total_story_points > 0:
             epic.completion_percentage = round((epic.completed_story_points / epic.total_story_points) * 100, 2)
@@ -367,10 +366,7 @@ def read_epics_by_project(
 
     # Add computed fields
     for epic in epics:
-        if epic.project:
-            epic.project_name = epic.project.name
-        if epic.assignee:
-            epic.assignee_name = epic.assignee.name
+        populate_epic_names(db, epic)
 
         if epic.total_story_points > 0:
             epic.completion_percentage = round((epic.completed_story_points / epic.total_story_points) * 100, 2)
@@ -394,10 +390,7 @@ def read_epics_by_assignee(
 
     # Add computed fields
     for epic in epics:
-        if epic.project:
-            epic.project_name = epic.project.name
-        if epic.assignee:
-            epic.assignee_name = epic.assignee.name
+        populate_epic_names(db, epic)
 
         if epic.total_story_points > 0:
             epic.completion_percentage = round((epic.completed_story_points / epic.total_story_points) * 100, 2)
@@ -416,10 +409,7 @@ def read_epics_by_priority(
 
     # Add computed fields
     for epic in epics:
-        if epic.project:
-            epic.project_name = epic.project.name
-        if epic.assignee:
-            epic.assignee_name = epic.assignee.name
+        populate_epic_names(db, epic)
 
         if epic.total_story_points > 0:
             epic.completion_percentage = round((epic.completed_story_points / epic.total_story_points) * 100, 2)
@@ -437,10 +427,7 @@ def read_active_epics(
 
     # Add computed fields
     for epic in epics:
-        if epic.project:
-            epic.project_name = epic.project.name
-        if epic.assignee:
-            epic.assignee_name = epic.assignee.name
+        populate_epic_names(db, epic)
 
         if epic.total_story_points > 0:
             epic.completion_percentage = round((epic.completed_story_points / epic.total_story_points) * 100, 2)
@@ -477,10 +464,7 @@ def update_epic_metrics(
     crud_audit_log.create(db=db, obj_in=audit_log)
 
     # Add computed fields
-    if epic.project:
-        epic.project_name = epic.project.name
-    if epic.assignee:
-        epic.assignee_name = epic.assignee.name
+    populate_epic_names(db, epic)
 
     if epic.total_story_points > 0:
         epic.completion_percentage = round((epic.completed_story_points / epic.total_story_points) * 100, 2)

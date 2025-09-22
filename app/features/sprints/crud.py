@@ -1,5 +1,5 @@
 from typing import List, Optional, Any
-from sqlalchemy.orm import Session, joinedload
+from sqlalchemy.orm import Session
 from sqlalchemy import and_, or_, func
 from app.core.pagination import paginate_query
 from app.shared.crud import CRUDBase
@@ -22,42 +22,24 @@ class CRUDSprint(CRUDBase[Sprint, SprintCreate, SprintUpdate]):
         return db_obj
 
     def get(self, db: Session, id: Any) -> Optional[Sprint]:
-        return db.query(Sprint).options(
-            joinedload(Sprint.project),
-            joinedload(Sprint.scrum_master)
-        ).filter(Sprint.id == id).first()
+        return db.query(Sprint).filter(Sprint.id == id).first()
 
     def get_multi(
         self, db: Session, *, skip: int = 0, limit: int = 100
     ) -> List[Sprint]:
-        return db.query(Sprint).options(
-            joinedload(Sprint.project),
-            joinedload(Sprint.scrum_master)
-        ).offset(skip).limit(limit).all()
+        return db.query(Sprint).offset(skip).limit(limit).all()
 
     def get_by_project(self, db: Session, *, project_id: str) -> List[Sprint]:
-        return db.query(Sprint).options(
-            joinedload(Sprint.project),
-            joinedload(Sprint.scrum_master)
-        ).filter(Sprint.project_id == project_id).all()
+        return db.query(Sprint).filter(Sprint.project_id == project_id).all()
 
     def get_by_status(self, db: Session, *, status: str) -> List[Sprint]:
-        return db.query(Sprint).options(
-            joinedload(Sprint.project),
-            joinedload(Sprint.scrum_master)
-        ).filter(Sprint.status == status).all()
+        return db.query(Sprint).filter(Sprint.status == status).all()
 
     def get_active_sprints(self, db: Session) -> List[Sprint]:
-        return db.query(Sprint).options(
-            joinedload(Sprint.project),
-            joinedload(Sprint.scrum_master)
-        ).filter(Sprint.status == "Active").all()
+        return db.query(Sprint).filter(Sprint.status == "Active").all()
 
     def get_by_scrum_master(self, db: Session, *, scrum_master_id: str) -> List[Sprint]:
-        return db.query(Sprint).options(
-            joinedload(Sprint.project),
-            joinedload(Sprint.scrum_master)
-        ).filter(Sprint.scrum_master_id == scrum_master_id).all()
+        return db.query(Sprint).filter(Sprint.scrum_master_id == scrum_master_id).all()
 
     def get_sprints_with_filters(
         self,
@@ -76,10 +58,7 @@ class CRUDSprint(CRUDBase[Sprint, SprintCreate, SprintUpdate]):
         """
         Get sprints with advanced filtering, pagination, and sorting
         """
-        query = db.query(Sprint).options(
-            joinedload(Sprint.project),
-            joinedload(Sprint.scrum_master)
-        )
+        query = db.query(Sprint)
 
         # Apply filters
         filters = []

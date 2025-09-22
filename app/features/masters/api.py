@@ -15,6 +15,7 @@ def get_project_masters(db: Session = Depends(get_db)):
     - Project types (Software Development, Research, etc.)
     - Project statuses (Active, On Hold, Completed, etc.)
     - Priority levels (Low, Medium, High, Critical)
+    - Task statuses (To Do, In Progress, Done, etc.)
 
     Returns a comprehensive object containing all master data for projects.
     """
@@ -24,7 +25,8 @@ def get_project_masters(db: Session = Depends(get_db)):
             methodologies=[schemas.ProjectMethodologyResponse.from_orm(item) for item in masters_data["methodologies"]],
             types=[schemas.ProjectTypeResponse.from_orm(item) for item in masters_data["types"]],
             statuses=[schemas.ProjectStatusResponse.from_orm(item) for item in masters_data["statuses"]],
-            priorities=[schemas.PriorityResponse.from_orm(item) for item in masters_data["priorities"]]
+            priorities=[schemas.PriorityResponse.from_orm(item) for item in masters_data["priorities"]],
+            task_status=[schemas.TaskStatusResponse.from_orm(item) for item in masters_data["task_status"]]
         )
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error fetching master data: {str(e)}")

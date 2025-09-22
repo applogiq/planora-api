@@ -43,9 +43,13 @@ def drop_all_tables():
         "tbl_master_project_methodology",
         "tbl_master_project_type",
         "tbl_master_project_status",
-        "tbl_master_priority"
+        "tbl_master_priority",
+        "tbl_master_task_status",
+        "tbl_file_folders",
+        "tbl_files",
+        "tbl_storage_quotas"
     ]
-
+    
     try:
         with SessionLocal() as session:
             print("\n🔧 Starting table drop process...")
