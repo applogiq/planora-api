@@ -74,7 +74,7 @@ def insert_users(db: Session):
         {
             "id": "f0f0f9ae-49c4-42c6-bd4a-a7c83124015f",
             "email": "manojkumar@planora.com",
-            "password": get_password_hash("palnora@123"),
+            "password": get_password_hash("planora@123"),
             "name": "Manoj Kumar",
             "role_id": "role_super_admin",
             "user_profile": "/public/user-profile/f3f208b7-32de-4f92-9d7a-982932667c10.jpeg",
@@ -88,7 +88,7 @@ def insert_users(db: Session):
         {
             "id": "a1b2c3d4-5e6f-7890-abcd-ef1234567890",
             "email": "mohammedyasik@planora.com",
-            "password": get_password_hash("palnora@123"),
+            "password": get_password_hash("planora@123"),
             "name": "Mohammed Yasik",
             "role_id": "role_admin",
             "user_profile": "/public/user-profile/photo-1507003211169-0a1dd7228f2d.jpeg",

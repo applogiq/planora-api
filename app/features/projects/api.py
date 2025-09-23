@@ -11,7 +11,7 @@ from app.features.audit_logs.crud import crud_audit_log
 # from app.crud import crud_project, crud_audit_log
 from app.db.database import get_db
 from app.features.users.models import User
-from app.features.projects.schemas import Project as ProjectSchema, ProjectCreate, ProjectUpdate, TeamMemberDetail
+from app.features.projects.schemas import Project as ProjectSchema, ProjectCreate, ProjectUpdate, TeamMemberDetail, ProjectMembersResponse
 from app.features.audit_logs.schemas import AuditLogCreate
 
 router = APIRouter()
@@ -468,3 +468,60 @@ def get_available_team_members(
         }
         for user in team_members
     ]
+
+@router.get("/members/{project_id}", response_model=ProjectMembersResponse)
+def get_project_members(
+    project_id: str,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(deps.require_permissions(["project:read"]))
+) -> Any:
+    """
+    Get team member and team lead details for a specific project.
+
+    Returns:
+    - project_id: ID of the project
+    - project_name: Name of the project
+    - team_lead: Details of the team lead (id, name, role)
+    - team_members: List of team member details (id, name, role)
+    """
+    # Get the project
+    project = crud_project.get(db, id=project_id)
+    if not project:
+        raise HTTPException(status_code=404, detail="Project not found")
+
+    # Get team lead details
+    team_lead_detail = None
+    if project.team_lead_id:
+        team_lead = crud_user.get(db, id=project.team_lead_id)
+        if team_lead:
+            team_lead_detail = TeamMemberDetail(
+                id=team_lead.id,
+                name=team_lead.name,
+                department=team_lead.department,
+                role_id=team_lead.role_id,
+                role_name=team_lead.role.name if team_lead.role else None,
+                user_profile=team_lead.user_profile
+            )
+
+    # Get team members details
+    team_members_detail = []
+    if project.team_members:
+        for member_id in project.team_members:
+            member = crud_user.get(db, id=member_id)
+            if member:
+                member_detail = TeamMemberDetail(
+                    id=member.id,
+                    name=member.name,
+                    department=member.department,
+                    role_id=member.role_id,
+                    role_name=member.role.name if member.role else None,
+                    user_profile=member.user_profile
+                )
+                team_members_detail.append(member_detail)
+
+    return ProjectMembersResponse(
+        project_id=project.id,
+        project_name=project.name,
+        team_lead=team_lead_detail,
+        team_members=team_members_detail
+    )

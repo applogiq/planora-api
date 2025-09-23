@@ -16,6 +16,15 @@ class TeamMemberDetail(BaseModel):
 
     model_config = ConfigDict(from_attributes=True)
 
+class ProjectMembersResponse(BaseModel):
+    """Response model for project members endpoint"""
+    project_id: str
+    project_name: str
+    team_lead: Optional[TeamMemberDetail] = None
+    team_members: List[TeamMemberDetail] = []
+
+    model_config = ConfigDict(from_attributes=True)
+
 class ProjectBase(BaseModel):
     name: str
     description: Optional[str] = None
