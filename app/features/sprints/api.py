@@ -62,10 +62,21 @@ def read_sprints(
 
     # Add computed fields
     for sprint in sprints:
-        if sprint.project:
+        if hasattr(sprint, 'project') and sprint.project:
             sprint.project_name = sprint.project.name
-        if sprint.scrum_master:
+        elif sprint.project_id:
+            # Get project name directly if relationship is not available
+            project = crud_project.get(db, id=sprint.project_id)
+            if project:
+                sprint.project_name = project.name
+
+        if hasattr(sprint, 'scrum_master') and sprint.scrum_master:
             sprint.scrum_master_name = sprint.scrum_master.name
+        elif sprint.scrum_master_id:
+            # Get scrum master name directly if relationship is not available
+            scrum_master = crud_user.get(db, id=sprint.scrum_master_id)
+            if scrum_master:
+                sprint.scrum_master_name = scrum_master.name
 
     return PaginatedResponse.create(
         items=sprints,
@@ -141,10 +152,21 @@ def create_sprint(
 
     # Add computed fields
     sprint = crud_sprint.get(db, id=sprint.id)
-    if sprint.project:
+    if hasattr(sprint, 'project') and sprint.project:
         sprint.project_name = sprint.project.name
-    if sprint.scrum_master:
+    elif sprint.project_id:
+        # Get project name directly if relationship is not available
+        project = crud_project.get(db, id=sprint.project_id)
+        if project:
+            sprint.project_name = project.name
+
+    if hasattr(sprint, 'scrum_master') and sprint.scrum_master:
         sprint.scrum_master_name = sprint.scrum_master.name
+    elif sprint.scrum_master_id:
+        # Get scrum master name directly if relationship is not available
+        scrum_master = crud_user.get(db, id=sprint.scrum_master_id)
+        if scrum_master:
+            sprint.scrum_master_name = scrum_master.name
 
     return sprint
 
@@ -211,10 +233,20 @@ def update_sprint(
 
     # Add computed fields
     sprint = crud_sprint.get(db, id=sprint.id)
-    if sprint.project:
+    if hasattr(sprint, 'project') and sprint.project:
         sprint.project_name = sprint.project.name
-    if sprint.scrum_master:
+    elif sprint.project_id:
+        # Get project name directly if relationship is not available
+        project = crud_project.get(db, id=sprint.project_id)
+        if project:
+            sprint.project_name = project.name
+    if hasattr(sprint, 'scrum_master') and sprint.scrum_master:
         sprint.scrum_master_name = sprint.scrum_master.name
+    elif sprint.scrum_master_id:
+        # Get scrum master name directly if relationship is not available
+        scrum_master = crud_user.get(db, id=sprint.scrum_master_id)
+        if scrum_master:
+            sprint.scrum_master_name = scrum_master.name
 
     return sprint
 
@@ -234,10 +266,20 @@ def read_sprint(
         )
 
     # Add computed fields
-    if sprint.project:
+    if hasattr(sprint, 'project') and sprint.project:
         sprint.project_name = sprint.project.name
-    if sprint.scrum_master:
+    elif sprint.project_id:
+        # Get project name directly if relationship is not available
+        project = crud_project.get(db, id=sprint.project_id)
+        if project:
+            sprint.project_name = project.name
+    if hasattr(sprint, 'scrum_master') and sprint.scrum_master:
         sprint.scrum_master_name = sprint.scrum_master.name
+    elif sprint.scrum_master_id:
+        # Get scrum master name directly if relationship is not available
+        scrum_master = crud_user.get(db, id=sprint.scrum_master_id)
+        if scrum_master:
+            sprint.scrum_master_name = scrum_master.name
 
     return sprint
 
@@ -286,10 +328,20 @@ def read_sprints_by_status(
 
     # Add computed fields
     for sprint in sprints:
-        if sprint.project:
+        if hasattr(sprint, 'project') and sprint.project:
             sprint.project_name = sprint.project.name
-        if sprint.scrum_master:
+        elif sprint.project_id:
+            # Get project name directly if relationship is not available
+            project = crud_project.get(db, id=sprint.project_id)
+            if project:
+                sprint.project_name = project.name
+        if hasattr(sprint, 'scrum_master') and sprint.scrum_master:
             sprint.scrum_master_name = sprint.scrum_master.name
+        elif sprint.scrum_master_id:
+            # Get scrum master name directly if relationship is not available
+            scrum_master = crud_user.get(db, id=sprint.scrum_master_id)
+            if scrum_master:
+                sprint.scrum_master_name = scrum_master.name
 
     return sprints
 
@@ -324,10 +376,20 @@ def read_sprints_by_project(
 
     # Add computed fields
     for sprint in sprints:
-        if sprint.project:
+        if hasattr(sprint, 'project') and sprint.project:
             sprint.project_name = sprint.project.name
-        if sprint.scrum_master:
+        elif sprint.project_id:
+            # Get project name directly if relationship is not available
+            project = crud_project.get(db, id=sprint.project_id)
+            if project:
+                sprint.project_name = project.name
+        if hasattr(sprint, 'scrum_master') and sprint.scrum_master:
             sprint.scrum_master_name = sprint.scrum_master.name
+        elif sprint.scrum_master_id:
+            # Get scrum master name directly if relationship is not available
+            scrum_master = crud_user.get(db, id=sprint.scrum_master_id)
+            if scrum_master:
+                sprint.scrum_master_name = scrum_master.name
 
     return PaginatedResponse.create(
         items=sprints,
@@ -347,10 +409,20 @@ def read_active_sprints(
 
     # Add computed fields
     for sprint in sprints:
-        if sprint.project:
+        if hasattr(sprint, 'project') and sprint.project:
             sprint.project_name = sprint.project.name
-        if sprint.scrum_master:
+        elif sprint.project_id:
+            # Get project name directly if relationship is not available
+            project = crud_project.get(db, id=sprint.project_id)
+            if project:
+                sprint.project_name = project.name
+        if hasattr(sprint, 'scrum_master') and sprint.scrum_master:
             sprint.scrum_master_name = sprint.scrum_master.name
+        elif sprint.scrum_master_id:
+            # Get scrum master name directly if relationship is not available
+            scrum_master = crud_user.get(db, id=sprint.scrum_master_id)
+            if scrum_master:
+                sprint.scrum_master_name = scrum_master.name
 
     return sprints
 
@@ -366,10 +438,20 @@ def read_sprints_by_scrum_master(
 
     # Add computed fields
     for sprint in sprints:
-        if sprint.project:
+        if hasattr(sprint, 'project') and sprint.project:
             sprint.project_name = sprint.project.name
-        if sprint.scrum_master:
+        elif sprint.project_id:
+            # Get project name directly if relationship is not available
+            project = crud_project.get(db, id=sprint.project_id)
+            if project:
+                sprint.project_name = project.name
+        if hasattr(sprint, 'scrum_master') and sprint.scrum_master:
             sprint.scrum_master_name = sprint.scrum_master.name
+        elif sprint.scrum_master_id:
+            # Get scrum master name directly if relationship is not available
+            scrum_master = crud_user.get(db, id=sprint.scrum_master_id)
+            if scrum_master:
+                sprint.scrum_master_name = scrum_master.name
 
     return sprints
 
@@ -403,10 +485,20 @@ def update_sprint_metrics(
     crud_audit_log.create(db=db, obj_in=audit_log)
 
     # Add computed fields
-    if sprint.project:
+    if hasattr(sprint, 'project') and sprint.project:
         sprint.project_name = sprint.project.name
-    if sprint.scrum_master:
+    elif sprint.project_id:
+        # Get project name directly if relationship is not available
+        project = crud_project.get(db, id=sprint.project_id)
+        if project:
+            sprint.project_name = project.name
+    if hasattr(sprint, 'scrum_master') and sprint.scrum_master:
         sprint.scrum_master_name = sprint.scrum_master.name
+    elif sprint.scrum_master_id:
+        # Get scrum master name directly if relationship is not available
+        scrum_master = crud_user.get(db, id=sprint.scrum_master_id)
+        if scrum_master:
+            sprint.scrum_master_name = scrum_master.name
 
     return sprint
 
