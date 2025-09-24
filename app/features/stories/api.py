@@ -87,7 +87,7 @@ def create_story(
         user_name=current_user.name,
         action="CREATE",
         resource="Story",
-        details=f"Created new {story.type}: {story.title}",
+        details=f"Created new {story.story_type}: {story.title}",
         ip_address=request.client.host,
         user_agent=request.headers.get("user-agent", ""),
         status="success"
@@ -116,7 +116,7 @@ def update_story(
     story = crud_story.update(db, db_obj=story, obj_in=story_in)
 
     # Log story update with status change details
-    details = f"Updated {story.type}: {story.title}"
+    details = f"Updated {story.story_type}: {story.title}"
     if story_in.status and old_status != story_in.status:
         details += f" (Status changed from '{old_status}' to '{story_in.status}')"
 
@@ -172,7 +172,7 @@ def delete_story(
         user_name=current_user.name,
         action="DELETE",
         resource="Story",
-        details=f"Deleted {story.type}: {story.title}",
+        details=f"Deleted {story.story_type}: {story.title}",
         ip_address=request.client.host,
         user_agent=request.headers.get("user-agent", ""),
         status="success"
@@ -235,7 +235,7 @@ def get_kanban_board(
 
     # Filter by type if specified
     if story_type:
-        all_stories = [story for story in all_stories if story.type == story_type]
+        all_stories = [story for story in all_stories if story.story_type == story_type]
 
     board = {
         "backlog": [story for story in all_stories if story.status == "backlog"],
@@ -261,9 +261,9 @@ def get_story_stats(
     stats = {
         "total_stories": len(all_stories),
         "by_type": {
-            "stories": len([s for s in all_stories if s.type == "story"]),
-            "tasks": len([s for s in all_stories if s.type == "task"]),
-            "bugs": len([s for s in all_stories if s.type == "bug"])
+            "stories": len([s for s in all_stories if s.story_type == "story"]),
+            "tasks": len([s for s in all_stories if s.story_type == "task"]),
+            "bugs": len([s for s in all_stories if s.story_type == "bug"])
         },
         "by_status": {
             "backlog": len([s for s in all_stories if s.status == "backlog"]),

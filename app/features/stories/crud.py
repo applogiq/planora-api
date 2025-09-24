@@ -33,7 +33,7 @@ class CRUDStory(CRUDBase[Story, StoryCreate, StoryUpdate]):
         return db.query(Story).filter(Story.project_id == project_id).all()
 
     def get_by_type(self, db: Session, *, story_type: str) -> List[Story]:
-        return db.query(Story).filter(Story.type == story_type).all()
+        return db.query(Story).filter(Story.story_type == story_type).all()
 
     def create(self, db: Session, *, obj_in: StoryCreate) -> Story:
         obj_data = obj_in.dict()
@@ -122,7 +122,7 @@ class CRUDStory(CRUDBase[Story, StoryCreate, StoryUpdate]):
 
         # Type filter
         if story_type:
-            filters.append(func.lower(Story.type) == story_type.lower())
+            filters.append(func.lower(Story.story_type) == story_type.lower())
 
         # Assignee filter
         if assignee_id:
@@ -216,12 +216,12 @@ class CRUDStory(CRUDBase[Story, StoryCreate, StoryUpdate]):
 
     def get_by_type(self, db: Session, *, story_type: str, skip: int = 0, limit: int = 100) -> List[Story]:
         """Get stories by type with skip/limit pagination"""
-        return db.query(Story).filter(Story.type == story_type).offset(skip).limit(limit).all()
+        return db.query(Story).filter(Story.story_type == story_type).offset(skip).limit(limit).all()
 
     def get_by_project_and_type(self, db: Session, *, project_id: str, story_type: str, skip: int = 0, limit: int = 100) -> List[Story]:
         """Get stories by project and type with skip/limit pagination"""
         return db.query(Story).filter(
-            and_(Story.project_id == project_id, Story.type == story_type)
+            and_(Story.project_id == project_id, Story.story_type == story_type)
         ).offset(skip).limit(limit).all()
 
     def remove(self, db: Session, *, id: str) -> Story:

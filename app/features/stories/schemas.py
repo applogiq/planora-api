@@ -54,7 +54,7 @@ class ActivitySchema(BaseModel):
 class StoryBase(BaseModel):
     title: str
     description: Optional[str] = None
-    type: str  # story, task, bug
+    story_type: str  # story, task, bug
     priority: str
     status: str
     epic_id: Optional[str] = None
@@ -98,7 +98,7 @@ class StoryCreate(StoryBase):
 class StoryUpdate(BaseModel):
     title: Optional[str] = None
     description: Optional[str] = None
-    type: Optional[str] = None
+    story_type: Optional[str] = None
     priority: Optional[str] = None
     status: Optional[str] = None
     epic_id: Optional[str] = None

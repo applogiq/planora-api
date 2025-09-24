@@ -9,7 +9,7 @@ class Story(Base):
     id = Column(String, primary_key=True, index=True)
     title = Column(String, nullable=False)
     description = Column(Text)
-    type = Column(String, nullable=False)  # story, task, bug
+    story_type = Column(String, nullable=False)  # story, task, bug
     priority = Column(String, nullable=False)  # low, medium, high, critical
     status = Column(String, nullable=False)  # backlog, todo, in-progress, review, done
     epic_id = Column(String, ForeignKey("tbl_project_epics.id"))
