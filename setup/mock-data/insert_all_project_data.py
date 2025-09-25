@@ -102,11 +102,11 @@ def create_all_project_tables_and_insert_data():
         print("\n📊 COMPLETE PROJECT SYSTEM SUMMARY:")
 
         print("\n🏢 Master Data:")
-        print("   • 6 Project Methodologies (Agile, Scrum, Waterfall, Kanban, DevOps, Lean)")
+        print("   • 3 Project Methodologies (Scrum, Kanban, Waterfall)")
         print("   • 10 Project Types (Software, Mobile, Web, AI/ML, IoT, Blockchain, etc.)")
         print("   • 5 Project Statuses (Planning, Active, On Hold, Completed, Cancelled)")
         print("   • 5 Priority Levels (Low, Medium, High, Critical, Urgent)")
-        print("   • 5 Departments (Engineering, Product, Design, QA, DevOps)")
+        print("   • 5 Departments (Engineering, Product, Design, QA, Infrastructure)")
         print("   • 8 Industries (Technology, Healthcare, Finance, E-commerce, etc.)")
 
         print("\n👥 Customers:")
@@ -115,7 +115,7 @@ def create_all_project_tables_and_insert_data():
         print("   • Revenue tracking and project associations")
 
         print("\n📁 Projects:")
-        print("   • 6 Projects covering all methodologies (Agile, Scrum, Waterfall, Kanban, DevOps, Lean)")
+        print("   • 6 Projects covering all methodologies (Scrum, Kanban, Waterfall)")
         print("   • Various budgets, timelines, and team assignments")
         print("   • Different statuses: Active, Planning, Completed, On Hold")
 
@@ -167,12 +167,9 @@ def insert_master_data(db: Session):
 
     # Insert Project Methodologies
     methodologies_data = [
-        {"id": str(uuid.uuid4()), "name": "Agile", "description": "Iterative and incremental approach to project management", "is_active": True, "sort_order": 1},
-        {"id": str(uuid.uuid4()), "name": "Scrum", "description": "Framework for developing and maintaining complex products", "is_active": True, "sort_order": 2},
-        {"id": str(uuid.uuid4()), "name": "Waterfall", "description": "Linear sequential approach to project management", "is_active": True, "sort_order": 3},
-        {"id": str(uuid.uuid4()), "name": "Kanban", "description": "Visual workflow management method", "is_active": True, "sort_order": 4},
-        {"id": str(uuid.uuid4()), "name": "DevOps", "description": "Combination of development and operations practices", "is_active": True, "sort_order": 5},
-        {"id": str(uuid.uuid4()), "name": "Lean", "description": "Methodology focused on maximizing value and minimizing waste", "is_active": True, "sort_order": 6}
+        {"id": str(uuid.uuid4()), "name": "Scrum", "description": "Framework for developing and maintaining complex products with iterative sprints", "is_active": True, "sort_order": 1},
+        {"id": str(uuid.uuid4()), "name": "Kanban", "description": "Visual workflow management method for continuous delivery", "is_active": True, "sort_order": 2},
+        {"id": str(uuid.uuid4()), "name": "Waterfall", "description": "Linear sequential approach to project management with distinct phases", "is_active": True, "sort_order": 3}
     ]
 
     for methodology_data in methodologies_data:
@@ -229,7 +226,7 @@ def insert_master_data(db: Session):
         {"id": str(uuid.uuid4()), "name": "Product Management", "description": "Product strategy and roadmap management", "is_active": True, "sort_order": 2},
         {"id": str(uuid.uuid4()), "name": "Design", "description": "User experience and interface design teams", "is_active": True, "sort_order": 3},
         {"id": str(uuid.uuid4()), "name": "Quality Assurance", "description": "Software testing and quality control", "is_active": True, "sort_order": 4},
-        {"id": str(uuid.uuid4()), "name": "DevOps", "description": "Infrastructure and deployment operations", "is_active": True, "sort_order": 5}
+        {"id": str(uuid.uuid4()), "name": "Infrastructure", "description": "Infrastructure and deployment operations", "is_active": True, "sort_order": 5}
     ]
 
     for department_data in departments_data:
@@ -265,7 +262,7 @@ def insert_projects(db: Session):
         "web_app": "aa1bb2cc-dd33-4ee5-5ff6-678901234567",
         "mobile_banking": "bb2cc3dd-ee44-5ff6-6778-789012345678",
         "ecommerce": "cc3dd4ee-ff55-6667-7889-890123456789",
-        "devops": str(uuid.uuid4()),
+        "infrastructure": str(uuid.uuid4()),
         "legacy_migration": str(uuid.uuid4()),
         "support_kanban": str(uuid.uuid4()),
         "process_optimization": str(uuid.uuid4())
@@ -289,7 +286,7 @@ def insert_projects(db: Session):
             "team_members": ["e5f6g7h8-9012-3456-ef01-567890123456", "f6g7h8i9-0123-4567-f012-678901234567"],
             "tags": ["frontend", "design", "react"],
             "color": "#28A745",
-            "methodology": "Agile",
+            "methodology": "Scrum",
             "project_type": "Software Development"
         },
         {
@@ -329,13 +326,13 @@ def insert_projects(db: Session):
             "team_members": ["e5f6g7h8-9012-3456-ef01-567890123456", "c3d4e5f6-7890-1234-cdef-345678901234"],
             "tags": ["e-commerce", "inventory", "payments"],
             "color": "#FFC107",
-            "methodology": "Agile",
+            "methodology": "Scrum",
             "project_type": "Software Development"
         },
         {
-            "id": project_ids["devops"],
-            "name": "DevOps Pipeline Automation",
-            "description": "Automated CI/CD pipeline with monitoring and deployment strategies",
+            "id": project_ids["infrastructure"],
+            "name": "Infrastructure Migration",
+            "description": "Systematic infrastructure migration using waterfall methodology",
             "status": "Active",
             "progress": 65,
             "start_date": datetime(2024, 9, 1),
@@ -347,9 +344,9 @@ def insert_projects(db: Session):
             "priority": "High",
             "team_lead_id": "g7h8i9j0-1234-5678-0123-789012345678",
             "team_members": ["d4e5f6g7-8901-2345-def0-456789012345", "h8i9j0k1-2345-6789-1234-890123456789"],
-            "tags": ["devops", "automation", "ci-cd"],
+            "tags": ["infrastructure", "migration", "waterfall"],
             "color": "#6F42C1",
-            "methodology": "DevOps",
+            "methodology": "Waterfall",
             "project_type": "Infrastructure"
         },
         {
@@ -395,7 +392,7 @@ def insert_projects(db: Session):
         {
             "id": project_ids["process_optimization"],
             "name": "Process Optimization Initiative",
-            "description": "Lean methodology implementation for workflow optimization",
+            "description": "Kanban-based workflow optimization and process improvement",
             "status": "Active",
             "progress": 40,
             "start_date": datetime(2024, 10, 15),
@@ -407,9 +404,9 @@ def insert_projects(db: Session):
             "priority": "Medium",
             "team_lead_id": "o5p6q7r8-9abc-def0-89ab-56789abcdef0",
             "team_members": ["p6q7r8s9-abcd-ef01-9abc-6789abcdef01", "q7r8s9t0-bcde-f012-abcd-789abcdef012"],
-            "tags": ["optimization", "lean", "process"],
+            "tags": ["optimization", "process", "workflow"],
             "color": "#E83E8C",
-            "methodology": "Lean",
+            "methodology": "Kanban",
             "project_type": "Software Development"
         }
     ]
@@ -754,7 +751,7 @@ def insert_tasks(db: Session, project_ids: dict):
             "attachments_count": 0
         },
 
-        # DevOps Pipeline Automation Project (5 tasks)
+        # Infrastructure Migration Project (5 tasks)
         {
             "id": str(uuid.uuid4()),
             "title": "CI/CD Pipeline Setup",
@@ -762,9 +759,9 @@ def insert_tasks(db: Session, project_ids: dict):
             "status": "completed",
             "priority": "critical",
             "assignee_id": "g7h8i9j0-1234-5678-0123-789012345678",
-            "project_id": project_ids["devops"],
+            "project_id": project_ids["infrastructure"],
             "sprint": "Sprint 22",
-            "labels": ["devops", "ci-cd", "automation"],
+            "labels": ["infrastructure", "ci-cd", "automation"],
             "due_date": datetime(2025, 1, 20),
             "story_points": 13,
             "comments_count": 5,
@@ -777,9 +774,9 @@ def insert_tasks(db: Session, project_ids: dict):
             "status": "in-progress",
             "priority": "high",
             "assignee_id": "d4e5f6g7-8901-2345-def0-456789012345",
-            "project_id": project_ids["devops"],
+            "project_id": project_ids["infrastructure"],
             "sprint": "Sprint 23",
-            "labels": ["devops", "monitoring", "alerts"],
+            "labels": ["infrastructure", "monitoring", "alerts"],
             "due_date": datetime(2025, 2, 3),
             "story_points": 8,
             "comments_count": 4,
@@ -792,9 +789,9 @@ def insert_tasks(db: Session, project_ids: dict):
             "status": "todo",
             "priority": "high",
             "assignee_id": "h8i9j0k1-2345-6789-1234-890123456789",
-            "project_id": project_ids["devops"],
+            "project_id": project_ids["infrastructure"],
             "sprint": "Sprint 24",
-            "labels": ["devops", "kubernetes", "containers"],
+            "labels": ["infrastructure", "kubernetes", "containers"],
             "due_date": datetime(2025, 2, 15),
             "story_points": 13,
             "comments_count": 2,
@@ -807,9 +804,9 @@ def insert_tasks(db: Session, project_ids: dict):
             "status": "todo",
             "priority": "medium",
             "assignee_id": "i9j0k1l2-3456-789a-2345-90123456789a",
-            "project_id": project_ids["devops"],
+            "project_id": project_ids["infrastructure"],
             "sprint": "Sprint 24",
-            "labels": ["devops", "security", "scanning"],
+            "labels": ["infrastructure", "security", "scanning"],
             "due_date": datetime(2025, 2, 25),
             "story_points": 8,
             "comments_count": 1,
@@ -822,9 +819,9 @@ def insert_tasks(db: Session, project_ids: dict):
             "status": "backlog",
             "priority": "low",
             "assignee_id": "j0k1l2m3-4567-89ab-3456-0123456789ab",
-            "project_id": project_ids["devops"],
+            "project_id": project_ids["infrastructure"],
             "sprint": "Sprint 25",
-            "labels": ["devops", "performance", "testing"],
+            "labels": ["infrastructure", "performance", "testing"],
             "due_date": datetime(2025, 3, 10),
             "story_points": 5,
             "comments_count": 0,
@@ -995,7 +992,7 @@ def insert_tasks(db: Session, project_ids: dict):
             "assignee_id": "o5p6q7r8-9abc-def0-89ab-56789abcdef0",
             "project_id": project_ids["process_optimization"],
             "sprint": "Sprint 22",
-            "labels": ["lean", "documentation", "process"],
+            "labels": ["kanban", "documentation", "process"],
             "due_date": datetime(2025, 1, 30),
             "story_points": 8,
             "comments_count": 4,
@@ -1010,7 +1007,7 @@ def insert_tasks(db: Session, project_ids: dict):
             "assignee_id": "p6q7r8s9-abcd-ef01-9abc-6789abcdef01",
             "project_id": project_ids["process_optimization"],
             "sprint": "Sprint 23",
-            "labels": ["lean", "analysis", "waste"],
+            "labels": ["kanban", "analysis", "efficiency"],
             "due_date": datetime(2025, 2, 10),
             "story_points": 5,
             "comments_count": 3,
@@ -1025,7 +1022,7 @@ def insert_tasks(db: Session, project_ids: dict):
             "assignee_id": "q7r8s9t0-bcde-f012-abcd-789abcdef012",
             "project_id": project_ids["process_optimization"],
             "sprint": "Sprint 24",
-            "labels": ["lean", "automation", "tools"],
+            "labels": ["kanban", "automation", "tools"],
             "due_date": datetime(2025, 2, 25),
             "story_points": 13,
             "comments_count": 2,
@@ -1040,7 +1037,7 @@ def insert_tasks(db: Session, project_ids: dict):
             "assignee_id": "r8s9t0u1-cdef-0123-bcde-89abcdef0123",
             "project_id": project_ids["process_optimization"],
             "sprint": "Sprint 25",
-            "labels": ["lean", "metrics", "dashboard"],
+            "labels": ["kanban", "metrics", "dashboard"],
             "due_date": datetime(2025, 3, 10),
             "story_points": 8,
             "comments_count": 1,
@@ -1049,13 +1046,13 @@ def insert_tasks(db: Session, project_ids: dict):
         {
             "id": str(uuid.uuid4()),
             "title": "Team Training Program",
-            "description": "Develop lean methodology training program for teams",
+            "description": "Develop kanban methodology training program for teams",
             "status": "backlog",
             "priority": "low",
             "assignee_id": "s9t0u1v2-def0-1234-cdef-9abcdef01234",
             "project_id": project_ids["process_optimization"],
             "sprint": "Sprint 26",
-            "labels": ["lean", "training", "methodology"],
+            "labels": ["kanban", "training", "methodology"],
             "due_date": datetime(2025, 3, 20),
             "story_points": 5,
             "comments_count": 0,

@@ -166,5 +166,5 @@ COMMENT ON TABLE tbl_master_industry IS 'Industry master data for categorization
 COMMENT ON TABLE tbl_customers IS 'Customer management data';
 COMMENT ON TABLE tbl_projects IS 'Project management data';
 COMMENT ON TABLE tbl_project_epics IS 'Project epics for organizing features';
-COMMENT ON TABLE tbl_project_sprints IS 'Sprint management for agile methodology';
+COMMENT ON TABLE tbl_project_sprints IS 'Sprint management for project methodologies';
 COMMENT ON TABLE tbl_project_tasks IS 'Individual tasks within projects';

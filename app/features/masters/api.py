@@ -11,7 +11,7 @@ router = APIRouter()
 def get_project_masters(db: Session = Depends(get_db)):
     """
     Get all project-related master data including:
-    - Project methodologies (Agile, Scrum, Waterfall, etc.)
+    - Project methodologies (Scrum, Kanban, Waterfall)
     - Project types (Software Development, Research, etc.)
     - Project statuses (Active, On Hold, Completed, etc.)
     - Priority levels (Low, Medium, High, Critical)

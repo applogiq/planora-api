@@ -22,7 +22,7 @@ class Project(Base):
     team_members = Column(ARRAY(String))
     tags = Column(ARRAY(String))
     color = Column(String)
-    methodology = Column(String)  # Agile, Waterfall, Scrum, Kanban, etc.
+    methodology = Column(String)  # Scrum, Kanban, Waterfall
     project_type = Column(String)  # Software Development, Research, Marketing, etc.
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())

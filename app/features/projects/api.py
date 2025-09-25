@@ -106,7 +106,7 @@ def read_projects(
     - team_lead_id: Filter by team lead user ID
     - customer: Filter by customer name (partial match)
     - tag: Filter by specific tag
-    - methodology: Filter by project methodology (Agile, Waterfall, Scrum, Kanban, etc.)
+    - methodology: Filter by project methodology (Scrum, Kanban, Waterfall)
     - project_type: Filter by project type (Software Development, Research, Marketing, etc.)
     """
     projects, total = crud_project.get_projects_with_filters(
@@ -161,7 +161,7 @@ def create_project(
     - end_date: Project end date
     - budget: Project budget
     - priority: Project priority (Low, Medium, High, Critical, Urgent)
-    - methodology: Project methodology (Agile, Scrum, Waterfall, etc.)
+    - methodology: Project methodology (Scrum, Kanban, Waterfall)
     - color: Project color code (hex format)
     - tags: Project tags
     """
@@ -401,7 +401,7 @@ def get_project_methodologies(
     current_user: User = Depends(deps.require_permissions(["project:read"]))
 ) -> Any:
     return {
-        "methodologies": ["Agile", "Waterfall", "Scrum", "Kanban", "DevOps", "Lean", "Six Sigma"]
+        "methodologies": ["Scrum", "Kanban", "Waterfall"]
     }
 
 @router.get("/types/list")

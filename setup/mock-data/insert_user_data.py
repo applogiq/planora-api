@@ -95,7 +95,7 @@ def insert_users(db: Session):
             "is_active": True,
             "last_login": datetime.now() - timedelta(minutes=30),
             "department": "IT",
-            "skills": ["System Administration", "Security", "DevOps"],
+            "skills": ["System Administration", "Security", "Infrastructure"],
             "phone": "+1 (555) 000-0002",
             "timezone": "America/New_York"
         },
@@ -109,7 +109,7 @@ def insert_users(db: Session):
             "is_active": True,
             "last_login": datetime.now() - timedelta(hours=2),
             "department": "Project Management",
-            "skills": ["Agile", "Scrum", "Risk Management"],
+            "skills": ["Scrum", "Waterfall", "Risk Management"],
             "phone": "+1 (555) 000-0003",
             "timezone": "America/Los_Angeles"
         },

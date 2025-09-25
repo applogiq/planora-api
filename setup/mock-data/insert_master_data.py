@@ -58,45 +58,24 @@ def insert_project_methodologies(db: Session):
     methodologies_data = [
         {
             "id": str(uuid.uuid4()),
-            "name": "Agile",
-            "description": "Iterative and incremental approach to project management",
+            "name": "Scrum",
+            "description": "Framework for developing and maintaining complex products with iterative sprints",
             "is_active": True,
             "sort_order": 1
         },
         {
             "id": str(uuid.uuid4()),
-            "name": "Scrum",
-            "description": "Framework for developing and maintaining complex products",
+            "name": "Kanban",
+            "description": "Visual workflow management method for continuous delivery",
             "is_active": True,
             "sort_order": 2
         },
         {
             "id": str(uuid.uuid4()),
             "name": "Waterfall",
-            "description": "Linear sequential approach to project management",
+            "description": "Linear sequential approach to project management with distinct phases",
             "is_active": True,
             "sort_order": 3
-        },
-        {
-            "id": str(uuid.uuid4()),
-            "name": "Kanban",
-            "description": "Visual workflow management method",
-            "is_active": True,
-            "sort_order": 4
-        },
-        {
-            "id": str(uuid.uuid4()),
-            "name": "DevOps",
-            "description": "Combination of development and operations practices",
-            "is_active": True,
-            "sort_order": 5
-        },
-        {
-            "id": str(uuid.uuid4()),
-            "name": "Lean",
-            "description": "Methodology focused on maximizing value and minimizing waste",
-            "is_active": True,
-            "sort_order": 6
         }
     ]
 
@@ -351,7 +330,7 @@ def insert_departments(db: Session):
         },
         {
             "id": str(uuid.uuid4()),
-            "name": "DevOps",
+            "name": "Infrastructure",
             "description": "Infrastructure and deployment operations",
             "is_active": True,
             "sort_order": 5

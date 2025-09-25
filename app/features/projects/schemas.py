@@ -57,7 +57,7 @@ class ProjectCreate(ProjectBase):
     start_date: Optional[Union[datetime, date, str]] = Field(None, description="Project start date (YYYY-MM-DD or ISO datetime)")
     end_date: Optional[Union[datetime, date, str]] = Field(None, description="Project end date (YYYY-MM-DD or ISO datetime)")
     priority: Optional[str] = Field("Medium", description="Project priority (Low, Medium, High, Critical, Urgent)")
-    methodology: Optional[str] = Field("Agile", description="Project methodology (Agile, Scrum, Waterfall, etc.)")
+    methodology: Optional[str] = Field("Scrum", description="Project methodology (Scrum, Kanban, Waterfall)")
     budget: Optional[float] = Field(None, description="Project budget", ge=0)
     tags: Optional[List[str]] = Field(default_factory=list, description="Project tags")
 
