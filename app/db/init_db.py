@@ -97,7 +97,7 @@ def init_db(db: Session) -> None:
             "role_id": "role_project_manager",
             "avatar": "PM",
             "department": "Project Management",
-            "skills": ["Agile", "Scrum", "Risk Management"],
+            "skills": ["Scrum", "Kanban", "Risk Management"],
             "phone": "+1 (555) 000-0003",
             "timezone": "America/Los_Angeles"
         }
